@@ -8,14 +8,17 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Trophy, Calendar, MapPin, Users, Award, Share2, Shield } from "lucide-react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { useTournament } from "@/hooks/useTournaments";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useUserTeamsForTournament } from "@/hooks/useTournamentRegistration";
 import { TeamSelector } from "@/components/tournaments/TeamSelector";
 import { IndependentTeam } from "@/types/database";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
+import { StandingsTable } from "@/components/tournaments/StandingsTable";
+import { MatchesList } from "@/components/tournaments/MatchesList";
+import { TopScorers } from "@/components/tournaments/TopScorers";
 
 const PublicTournament = () => {
   const { id } = useParams<{ id: string }>();
@@ -28,6 +31,126 @@ const PublicTournament = () => {
   const [selectedTeam, setSelectedTeam] = useState<(IndependentTeam & { members_count: number }) | null>(null);
   const [playersCount, setPlayersCount] = useState(1);
   const [showRegisterDialog, setShowRegisterDialog] = useState(false);
+  const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
+
+  // Fetch groups
+  const { data: groups = [] } = useQuery({
+    queryKey: ['tournament-groups', id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('groups')
+        .select('*')
+        .eq('tournament_id', id)
+        .order('display_order');
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!id,
+  });
+
+  // Fetch matches
+  const { data: matches = [] } = useQuery({
+    queryKey: ['tournament-matches', id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('matches')
+        .select(`
+          *,
+          home_team:teams!matches_home_team_id_fkey(name, emoji, logo_url),
+          away_team:teams!matches_away_team_id_fkey(name, emoji, logo_url),
+          group:groups(name)
+        `)
+        .eq('tournament_id', id)
+        .order('match_date');
+      if (error) throw error;
+      return data as any || [];
+    },
+    enabled: !!id,
+  });
+
+  // Fetch standings (from group_teams)
+  const { data: standings = [] } = useQuery({
+    queryKey: ['tournament-standings', id, selectedGroupId],
+    queryFn: async () => {
+      let query = supabase
+        .from('group_teams')
+        .select(`
+          *,
+          teams(id, name, emoji, logo_url)
+        `);
+
+      if (selectedGroupId) {
+        query = query.eq('group_id', selectedGroupId);
+      } else if (groups.length > 0) {
+        // If no group selected but groups exist, show first group
+        query = query.eq('group_id', groups[0].id);
+      }
+
+      const { data, error } = await query.order('points', { ascending: false });
+      if (error) throw error;
+
+      return (data || []).map((gt: any) => ({
+        id: gt.team_id,
+        name: gt.teams?.name || '',
+        emoji: gt.teams?.emoji,
+        logo_url: gt.teams?.logo_url,
+        points: gt.points,
+        matches_played: gt.wins + gt.draws + gt.losses,
+        wins: gt.wins,
+        draws: gt.draws,
+        losses: gt.losses,
+        goals_for: gt.goals_for,
+        goals_against: gt.goals_against,
+        goal_difference: gt.goal_difference,
+      }));
+    },
+    enabled: !!id && (groups.length > 0 || !tournament || tournament.format !== 'groups-knockout'),
+  });
+
+  // Fetch top scorers
+  const { data: topScorers = [] } = useQuery({
+    queryKey: ['tournament-scorers', id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('goals')
+        .select(`
+          player_id,
+          profiles!goals_player_id_fkey(name, avatar_url),
+          teams!goals_team_id_fkey(name, emoji, logo_url)
+        `)
+        .in('match_id', matches.map(m => m.id));
+      
+      if (error) throw error;
+
+      // Group by player
+      const scorersMap = new Map();
+      (data || []).forEach((goal: any) => {
+        const playerId = goal.player_id;
+        if (!scorersMap.has(playerId)) {
+          scorersMap.set(playerId, {
+            player_id: playerId,
+            player_name: goal.profiles?.name || 'Jogador',
+            avatar_url: goal.profiles?.avatar_url,
+            team_name: goal.teams?.name || 'Time',
+            team_emoji: goal.teams?.emoji,
+            team_logo_url: goal.teams?.logo_url,
+            goals_count: 0,
+          });
+        }
+        scorersMap.get(playerId).goals_count++;
+      });
+
+      return Array.from(scorersMap.values()).sort((a, b) => b.goals_count - a.goals_count);
+    },
+    enabled: !!id && matches.length > 0,
+  });
+
+  // Set first group as selected when groups load
+  useEffect(() => {
+    if (groups.length > 0 && !selectedGroupId) {
+      setSelectedGroupId(groups[0].id);
+    }
+  }, [groups, selectedGroupId]);
 
   const handleSelectTeam = (team: IndependentTeam & { members_count: number }) => {
     setSelectedTeam(team);
@@ -216,7 +339,17 @@ const PublicTournament = () => {
         <div className="container mx-auto px-4 py-12">
           <div className="max-w-4xl mx-auto">
             <div className="flex items-start justify-between mb-6">
-              <div>
+              <div className="flex-1">
+                {/* Logo do Torneio */}
+                {tournament.logo_url && (
+                  <div className="mb-6">
+                    <img
+                      src={tournament.logo_url}
+                      alt={tournament.name}
+                      className="h-24 w-24 md:h-32 md:w-32 object-contain rounded-lg border-2 border-primary/20"
+                    />
+                  </div>
+                )}
                 <h1 className="text-4xl md:text-5xl font-bold mb-4 text-primary">{tournament.name}</h1>
                 <div className="flex flex-wrap gap-4 text-muted-foreground">
                   <div className="flex items-center gap-2">
@@ -398,12 +531,47 @@ const PublicTournament = () => {
       {/* Tournament Content */}
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
-          <Tabs defaultValue="teams" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mb-8">
-              <TabsTrigger value="teams">Times Inscritos</TabsTrigger>
-              <TabsTrigger value="rules">Regulamento</TabsTrigger>
-              <TabsTrigger value="info">Informações</TabsTrigger>
+          <Tabs defaultValue="standings" className="w-full">
+            <TabsList className="grid w-full grid-cols-5 mb-8">
+              <TabsTrigger value="standings">Classificação</TabsTrigger>
+              <TabsTrigger value="matches">Partidas</TabsTrigger>
+              <TabsTrigger value="scorers">Artilharia</TabsTrigger>
+              <TabsTrigger value="teams">Times</TabsTrigger>
+              <TabsTrigger value="info">Info</TabsTrigger>
             </TabsList>
+
+            {/* Standings Tab */}
+            <TabsContent value="standings" className="space-y-6">
+              {groups.length > 0 ? (
+                <>
+                  {/* Group Selector */}
+                  <div className="flex gap-2 flex-wrap">
+                    {groups.map((group: any) => (
+                      <Button
+                        key={group.id}
+                        variant={selectedGroupId === group.id ? "default" : "outline"}
+                        onClick={() => setSelectedGroupId(group.id)}
+                      >
+                        {group.name}
+                      </Button>
+                    ))}
+                  </div>
+                  <StandingsTable standings={standings} title={groups.find((g: any) => g.id === selectedGroupId)?.name} />
+                </>
+              ) : (
+                <StandingsTable standings={standings} />
+              )}
+            </TabsContent>
+
+            {/* Matches Tab */}
+            <TabsContent value="matches">
+              <MatchesList matches={matches} />
+            </TabsContent>
+
+            {/* Scorers Tab */}
+            <TabsContent value="scorers">
+              <TopScorers scorers={topScorers} />
+            </TabsContent>
 
             {/* Teams Tab */}
             <TabsContent value="teams">
@@ -464,58 +632,57 @@ const PublicTournament = () => {
               </Card>
             </TabsContent>
 
-            {/* Rules Tab */}
-            <TabsContent value="rules">
-              <Card className="border-primary/20">
-                <CardHeader>
-                  <CardTitle>Regulamento</CardTitle>
-                  <CardDescription>Regras e diretrizes do torneio</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="prose prose-sm max-w-none dark:prose-invert">
-                    <p className="whitespace-pre-wrap">{tournament.rules}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
             {/* Info Tab */}
             <TabsContent value="info">
-              <Card className="border-primary/20">
-                <CardHeader>
-                  <CardTitle>Informações do Torneio</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label className="text-muted-foreground">Esporte</Label>
-                    <p className="text-lg font-semibold">{tournament.sport}</p>
-                  </div>
-                  <div>
-                    <Label className="text-muted-foreground">Formato</Label>
-                    <p className="text-lg font-semibold">
-                      {tournament.format === 'groups-knockout' && 'Grupos + Mata-Mata'}
-                      {tournament.format === 'knockout' && 'Mata-Mata Simples'}
-                      {tournament.format === 'league' && 'Pontos Corridos'}
-                      {tournament.format === 'fighting' && 'Torneio de Luta'}
-                    </p>
-                  </div>
-                  <div>
-                    <Label className="text-muted-foreground">Prazo de Inscrição</Label>
-                    <p className="text-lg font-semibold">
-                      {new Date(tournament.registration_deadline).toLocaleDateString('pt-BR')}
-                    </p>
-                  </div>
-                  <div>
-                    <Label className="text-muted-foreground">Status</Label>
-                    <p className="text-lg font-semibold">
-                      {tournament.status === 'registration_open' && 'Inscrições Abertas'}
-                      {tournament.status === 'registration_closed' && 'Inscrições Encerradas'}
-                      {tournament.status === 'in_progress' && 'Em Andamento'}
-                      {tournament.status === 'completed' && 'Finalizado'}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
+              <div className="space-y-6">
+                <Card className="border-primary/20">
+                  <CardHeader>
+                    <CardTitle>Regulamento</CardTitle>
+                    <CardDescription>Regras e diretrizes do torneio</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="prose prose-sm max-w-none dark:prose-invert">
+                      <p className="whitespace-pre-wrap">{tournament.rules}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-primary/20">
+                  <CardHeader>
+                    <CardTitle>Informações do Torneio</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <Label className="text-muted-foreground">Esporte</Label>
+                      <p className="text-lg font-semibold">{tournament.sport}</p>
+                    </div>
+                    <div>
+                      <Label className="text-muted-foreground">Formato</Label>
+                      <p className="text-lg font-semibold">
+                        {tournament.format === 'groups-knockout' && 'Grupos + Mata-Mata'}
+                        {tournament.format === 'knockout' && 'Mata-Mata Simples'}
+                        {tournament.format === 'league' && 'Pontos Corridos'}
+                        {tournament.format === 'fighting' && 'Torneio de Luta'}
+                      </p>
+                    </div>
+                    <div>
+                      <Label className="text-muted-foreground">Prazo de Inscrição</Label>
+                      <p className="text-lg font-semibold">
+                        {new Date(tournament.registration_deadline).toLocaleDateString('pt-BR')}
+                      </p>
+                    </div>
+                    <div>
+                      <Label className="text-muted-foreground">Status</Label>
+                      <p className="text-lg font-semibold">
+                        {tournament.status === 'registration_open' && 'Inscrições Abertas'}
+                        {tournament.status === 'registration_closed' && 'Inscrições Encerradas'}
+                        {tournament.status === 'in_progress' && 'Em Andamento'}
+                        {tournament.status === 'completed' && 'Finalizado'}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </TabsContent>
           </Tabs>
         </div>

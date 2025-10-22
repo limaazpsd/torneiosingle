@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Trophy, ArrowLeft, Users, Settings, Info, Trash2, CheckCircle, XCircle, Clock, DollarSign } from "lucide-react";
 import { toast } from "sonner";
+import { MatchManagement } from "@/components/tournaments/MatchManagement";
 
 const TournamentManagement = () => {
   const { id } = useParams();
@@ -63,6 +64,25 @@ const TournamentManagement = () => {
       
       if (error) throw error;
       return data as Team[];
+    },
+    enabled: !!id,
+  });
+
+  // Fetch matches
+  const { data: matches = [] } = useQuery({
+    queryKey: ["tournament-matches", id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('matches')
+        .select(`
+          *,
+          home_team:teams!matches_home_team_id_fkey(name, emoji, logo_url),
+          away_team:teams!matches_away_team_id_fkey(name, emoji, logo_url)
+        `)
+        .eq('tournament_id', id)
+        .order('match_date');
+      if (error) throw error;
+      return data || [];
     },
     enabled: !!id,
   });
@@ -209,7 +229,7 @@ const TournamentManagement = () => {
 
       <div className="container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 max-w-md">
+          <TabsList className="grid w-full grid-cols-4 max-w-2xl">
             <TabsTrigger value="overview">
               <Info className="h-4 w-4 mr-2" />
               Visão Geral
@@ -217,6 +237,10 @@ const TournamentManagement = () => {
             <TabsTrigger value="teams">
               <Users className="h-4 w-4 mr-2" />
               Times
+            </TabsTrigger>
+            <TabsTrigger value="matches">
+              <Trophy className="h-4 w-4 mr-2" />
+              Partidas
             </TabsTrigger>
             <TabsTrigger value="settings">
               <Settings className="h-4 w-4 mr-2" />
@@ -457,9 +481,14 @@ const TournamentManagement = () => {
                 )}
               </CardContent>
             </Card>
-          </TabsContent>
+            </TabsContent>
 
-          {/* Settings Tab */}
+            {/* Matches Tab */}
+            <TabsContent value="matches">
+              <MatchManagement tournamentId={id!} matches={matches as any} teams={teams as any || []} />
+            </TabsContent>
+
+            {/* Settings Tab */}
           <TabsContent value="settings" className="space-y-6">
             <Card>
               <CardHeader>

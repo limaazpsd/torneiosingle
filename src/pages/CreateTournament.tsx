@@ -30,6 +30,7 @@ const tournamentSchema = z.object({
   second_place_percentage: z.number().min(0).max(100),
   third_place_percentage: z.number().min(0).max(100),
   rules: z.string().min(10, "Regras devem ter pelo menos 10 caracteres").max(5000, "Regras muito longas"),
+  logo_url: z.string().optional(),
 }).refine((data) => {
   const sum = data.first_place_percentage + data.second_place_percentage + data.third_place_percentage;
   return sum === 100;
@@ -72,8 +73,30 @@ const CreateTournament = () => {
       second_place_percentage: 30,
       third_place_percentage: 10,
       rules: "",
+      logo_url: "",
     },
   });
+
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+
+  const handleLogoUpload = async () => {
+    if (!logoFile || !user) return null;
+    
+    const fileExt = logoFile.name.split('.').pop();
+    const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+    
+    const { error: uploadError, data } = await supabase.storage
+      .from('team-logos')
+      .upload(fileName, logoFile);
+    
+    if (uploadError) throw uploadError;
+    
+    const { data: { publicUrl } } = supabase.storage
+      .from('team-logos')
+      .getPublicUrl(fileName);
+    
+    return publicUrl;
+  };
 
   const onSubmit = async (values: TournamentFormValues) => {
     if (!user) {
@@ -88,6 +111,11 @@ const CreateTournament = () => {
     setIsSubmitting(true);
 
     try {
+      let logoUrl = null;
+      if (logoFile) {
+        logoUrl = await handleLogoUpload();
+      }
+
       const { data, error } = await (supabase as any)
         .from('tournaments')
         .insert([{
@@ -105,6 +133,7 @@ const CreateTournament = () => {
           second_place_percentage: values.second_place_percentage,
           third_place_percentage: values.third_place_percentage,
           rules: values.rules,
+          logo_url: logoUrl,
           creator_id: user.id,
           status: 'registration_open',
         }])
@@ -272,6 +301,16 @@ const CreateTournament = () => {
                         </FormItem>
                       )}
                     />
+
+                    <div>
+                      <Label>Logo do Torneio</Label>
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => setLogoFile(e.target.files?.[0] || null)}
+                        className="bg-input border-border"
+                      />
+                    </div>
                   </div>
 
                   {/* Registration Settings */}
