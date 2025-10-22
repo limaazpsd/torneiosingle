@@ -36,7 +36,7 @@ const Tournaments = () => {
     <div className="min-h-screen bg-background">
       {/* Navigation */}
       <nav className="border-b border-border bg-card/50 backdrop-blur-sm">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
             <Trophy className="h-6 w-6 text-primary" />
             <span className="text-xl font-bold">Torneio Pro</span>
@@ -49,7 +49,7 @@ const Tournaments = () => {
 
       {/* Header */}
       <div className="bg-gradient-hero border-b border-border">
-        <div className="container mx-auto px-4 py-12">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12 py-12">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
               Explore <span className="text-primary">Torneios Disponíveis</span>
@@ -100,7 +100,7 @@ const Tournaments = () => {
       </div>
 
       {/* Tournament Grid */}
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-6 md:px-8 lg:px-12 py-12">
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3, 4, 5, 6].map((i) => (

@@ -193,12 +193,12 @@ const TournamentManagement = () => {
     return (
       <div className="min-h-screen bg-background">
         <nav className="border-b border-border bg-card/50 backdrop-blur-sm">
-          <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+          <div className="container mx-auto px-6 md:px-8 lg:px-12 h-16 flex items-center justify-between">
             <Skeleton className="h-8 w-48" />
             <Skeleton className="h-10 w-32" />
           </div>
         </nav>
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12 py-8">
           <Skeleton className="h-64 w-full" />
         </div>
       </div>
@@ -213,7 +213,7 @@ const TournamentManagement = () => {
     <div className="min-h-screen bg-background">
       {/* Navigation */}
       <nav className="border-b border-border bg-card/50 backdrop-blur-sm">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="sm" onClick={() => navigate("/dashboard")}>
               <ArrowLeft className="h-4 w-4 mr-2" />
@@ -230,7 +230,7 @@ const TournamentManagement = () => {
         </div>
       </nav>
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-6 md:px-8 lg:px-12 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-5 max-w-3xl">
             <TabsTrigger value="overview">

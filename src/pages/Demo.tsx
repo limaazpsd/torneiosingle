@@ -22,7 +22,7 @@ const Demo = () => {
     <div className="min-h-screen bg-background">
       {/* Navigation Bar */}
       <nav className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12 py-4 flex items-center justify-between">
           <Link to="/" className="text-2xl font-bold">
             Torneio <span className="text-primary">Pro</span>
           </Link>
@@ -36,7 +36,7 @@ const Demo = () => {
       </nav>
 
       {/* Hero Section */}
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-6 md:px-8 lg:px-12 py-12">
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
             Como Funciona o <span className="text-primary">Torneio Pro</span>

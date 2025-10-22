@@ -23,7 +23,7 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       {/* Navigation */}
       <nav className="border-b border-border bg-card/50 backdrop-blur-sm fixed top-0 w-full z-50">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Trophy className="h-6 w-6 text-primary" />
             <span className="text-xl font-bold">Torneio Pro</span>
@@ -58,7 +58,7 @@ const Index = () => {
 
       {/* Hero Section */}
       <section className="pt-32 pb-20">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12">
           <div className="max-w-4xl mx-auto text-center animate-fade-in">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-8">
               <Zap className="h-4 w-4 text-primary" />
@@ -100,7 +100,7 @@ const Index = () => {
 
       {/* Social Proof Metrics */}
       <section className="py-16">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
             <div className="text-center">
               <div className="text-4xl md:text-5xl font-bold text-primary mb-2">1000+</div>
@@ -120,7 +120,7 @@ const Index = () => {
 
       {/* Feature Highlights */}
       <section className="py-20">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold mb-4">
               Tudo que você precisa para <span className="text-primary">gerenciar campeonatos</span>
@@ -202,7 +202,7 @@ const Index = () => {
 
       {/* Featured Tournaments */}
       <section className="py-20 bg-gradient-hero">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold mb-4">Torneios de Destaque Organizados Conosco</h2>
             <p className="text-xl text-muted-foreground">Eventos que confiam no Torneio Pro</p>
@@ -241,7 +241,7 @@ const Index = () => {
 
       {/* Explore Tournaments Section */}
       <section className="py-20">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12">
           <div className="max-w-3xl mx-auto text-center mb-12">
             <h2 className="text-4xl font-bold mb-4">
               Descubra <span className="text-primary">Torneios Disponíveis</span>
@@ -274,7 +274,7 @@ const Index = () => {
 
       {/* Pricing Plans */}
       <section className="py-20">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12">
           <div className="text-center mb-12">
             <h2 className="text-4xl md:text-5xl font-bold mb-4">
               Planos que <span className="text-primary">crescem com você</span>
@@ -397,7 +397,7 @@ const Index = () => {
 
       {/* Final CTA Section */}
       <section className="py-20 bg-gradient-hero">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12">
           <Card className="max-w-4xl mx-auto border-primary/30 bg-card/50 backdrop-blur">
             <CardContent className="p-12 text-center">
               <h2 className="text-4xl md:text-5xl font-bold mb-4">Pronto para profissionalizar seu campeonato?</h2>
@@ -445,7 +445,7 @@ const Index = () => {
 
       {/* Footer */}
       <footer className="border-t border-border py-8">
-        <div className="container mx-auto px-4 text-center text-muted-foreground">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12 text-center text-muted-foreground">
           <p>© 2024 Torneio Pro. Todos os direitos reservados.</p>
         </div>
       </footer>

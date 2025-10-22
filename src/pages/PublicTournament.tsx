@@ -286,14 +286,14 @@ const PublicTournament = () => {
     return (
       <div className="min-h-screen bg-background">
         <nav className="border-b border-border bg-card/50 backdrop-blur-sm">
-          <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+          <div className="container mx-auto px-6 md:px-8 lg:px-12 h-16 flex items-center justify-between">
             <Link to="/" className="flex items-center gap-2">
               <Trophy className="h-6 w-6 text-primary" />
               <span className="text-xl font-bold">Torneio Pro</span>
             </Link>
           </div>
         </nav>
-        <div className="container mx-auto px-4 py-12">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12 py-12">
           <Skeleton className="h-32 w-full mb-8" />
           <Skeleton className="h-64 w-full" />
         </div>
@@ -323,7 +323,7 @@ const PublicTournament = () => {
     <div className="min-h-screen bg-background">
       {/* Navigation */}
       <nav className="border-b border-border bg-card/50 backdrop-blur-sm">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
             <Trophy className="h-6 w-6 text-primary" />
             <span className="text-xl font-bold">Torneio Pro</span>
@@ -337,7 +337,7 @@ const PublicTournament = () => {
 
       {/* Tournament Header */}
       <div className="bg-gradient-hero border-b border-border">
-        <div className="container mx-auto px-4 py-12">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12 py-12">
           <div className="max-w-4xl mx-auto">
             <div className="flex items-start justify-between mb-6">
               <div className="flex-1">
@@ -530,7 +530,7 @@ const PublicTournament = () => {
       </div>
 
       {/* Tournament Content */}
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-6 md:px-8 lg:px-12 py-8">
         <div className="max-w-4xl mx-auto">
           <Tabs defaultValue="standings" className="w-full">
             <TabsList className="grid w-full grid-cols-5 mb-8">

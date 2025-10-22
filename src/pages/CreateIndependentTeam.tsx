@@ -101,7 +101,7 @@ const CreateIndependentTeam = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <nav className="border-b border-border bg-card/50 backdrop-blur-sm">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12 h-16 flex items-center justify-between">
           <Button
             variant="ghost"
             onClick={() => navigate("/dashboard")}
@@ -119,7 +119,7 @@ const CreateIndependentTeam = () => {
       </nav>
 
       {/* Form */}
-      <div className="container mx-auto px-4 py-8 max-w-2xl">
+      <div className="container mx-auto px-6 md:px-8 lg:px-12 py-8 max-w-2xl">
         <form onSubmit={handleSubmit}>
           <Card className="bg-card/50 border-primary/20">
             <CardHeader>
