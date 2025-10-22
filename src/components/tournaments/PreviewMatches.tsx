@@ -32,61 +32,49 @@ export const PreviewMatches = ({ teamsCount, format }: PreviewMatchesProps) => {
 
   return (
     <div className="space-y-6">
-      <Card className="border-primary/20">
-        <CardHeader>
-          <CardTitle>Pré-visualização - Partidas</CardTitle>
-          <CardDescription>
-            Após o sorteio, as partidas serão definidas com datas e horários
-          </CardDescription>
-        </CardHeader>
-      </Card>
+      <div className="mb-6">
+        <h3 className="text-2xl font-bold mb-2">Partidas</h3>
+        <p className="text-sm text-muted-foreground">
+          Após o sorteio, as partidas serão definidas com datas e horários
+        </p>
+      </div>
 
       {rounds.map((round) => (
-        <Card key={round.name} className="border-border">
+        <Card key={round.name} className="border-primary/20 bg-card/50">
           <CardHeader>
-            <CardTitle className="flex items-center justify-between text-lg">
-              <span>{round.name}</span>
-              <Badge variant="outline">{round.matches} partida{round.matches !== 1 ? 's' : ''}</Badge>
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg">{round.name}</CardTitle>
+              <Badge variant="outline" className="text-muted-foreground">
+                {round.matches} partida{round.matches !== 1 ? 's' : ''}
+              </Badge>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
               {Array.from({ length: Math.min(round.matches, 4) }, (_, i) => (
-                <Card key={i} className="bg-card/50 border-dashed border-border">
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      {/* Home Team */}
-                      <div className="flex items-center gap-3 flex-1">
-                        <Shield className="w-8 h-8 text-muted-foreground" />
-                        <span className="text-muted-foreground font-medium">TIME A DEFINIR</span>
-                      </div>
+                <div
+                  key={i}
+                  className="flex items-center justify-between p-4 rounded-lg bg-background/50 border border-border/30"
+                >
+                  {/* Home Team */}
+                  <div className="flex items-center gap-3 flex-1">
+                    <Shield className="w-6 h-6 text-muted-foreground/50" />
+                    <span className="font-medium text-muted-foreground">A DEFINIR</span>
+                  </div>
 
-                      {/* Score placeholder */}
-                      <div className="px-6 flex items-center gap-4">
-                        <span className="text-2xl font-bold text-muted-foreground/50">-</span>
-                        <span className="text-sm text-muted-foreground">VS</span>
-                        <span className="text-2xl font-bold text-muted-foreground/50">-</span>
-                      </div>
+                  {/* Score placeholder */}
+                  <div className="px-6 flex items-center gap-3">
+                    <span className="text-xl font-bold text-muted-foreground/50">-</span>
+                    <span className="text-xs text-muted-foreground">VS</span>
+                    <span className="text-xl font-bold text-muted-foreground/50">-</span>
+                  </div>
 
-                      {/* Away Team */}
-                      <div className="flex items-center gap-3 flex-1 justify-end">
-                        <span className="text-muted-foreground font-medium">TIME A DEFINIR</span>
-                        <Shield className="w-8 h-8 text-muted-foreground" />
-                      </div>
-                    </div>
-
-                    {/* Match details */}
-                    <div className="flex items-center gap-4 mt-3 pt-3 border-t border-border text-sm text-muted-foreground">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4" />
-                        <span>Data a definir</span>
-                      </div>
-                      <Badge variant="outline" className="text-xs">
-                        Aguardando sorteio
-                      </Badge>
-                    </div>
-                  </CardContent>
-                </Card>
+                  {/* Away Team */}
+                  <div className="flex items-center gap-3 flex-1 justify-end">
+                    <span className="font-medium text-muted-foreground">A DEFINIR</span>
+                    <Shield className="w-6 h-6 text-muted-foreground/50" />
+                  </div>
+                </div>
               ))}
               
               {round.matches > 4 && (
@@ -94,6 +82,13 @@ export const PreviewMatches = ({ teamsCount, format }: PreviewMatchesProps) => {
                   ... e mais {round.matches - 4} partida{round.matches - 4 !== 1 ? 's' : ''}
                 </p>
               )}
+            </div>
+            
+            <div className="mt-4 pt-4 border-t border-border/50">
+              <p className="text-xs text-muted-foreground flex items-center gap-2">
+                <Calendar className="h-4 w-4" />
+                <span>As datas e horários serão definidos após o sorteio</span>
+              </p>
             </div>
           </CardContent>
         </Card>

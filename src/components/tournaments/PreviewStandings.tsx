@@ -11,15 +11,21 @@ interface PreviewStandingsProps {
 
 export const PreviewStandings = ({ teamsCount, format, groupsCount = 4 }: PreviewStandingsProps) => {
   const isGroupStage = format === 'groups-knockout' || format === 'groups-only';
-  const teamsPerGroup = isGroupStage ? Math.ceil(teamsCount / groupsCount) : 0;
+  
+  // Limit to maximum 4 groups and 4 teams per group
+  const displayGroupsCount = Math.min(groupsCount, 4);
+  const teamsPerGroup = 4;
 
   // Generate preview groups
   const groups = isGroupStage 
-    ? Array.from({ length: Math.min(groupsCount, 4) }, (_, i) => ({
+    ? Array.from({ length: displayGroupsCount }, (_, i) => ({
         name: `Grupo ${String.fromCharCode(65 + i)}`,
         teams: Array.from({ length: teamsPerGroup }, (_, j) => ({
           position: j + 1,
-          name: `Time ${j + 1}`,
+          points: 0,
+          wins: 0,
+          goalDifference: 0,
+          goalsFor: 0,
         })),
       }))
     : [];
@@ -38,11 +44,11 @@ export const PreviewStandings = ({ teamsCount, format, groupsCount = 4 }: Previe
               <div key={i} className="flex items-center justify-between p-4 border border-dashed border-border rounded-lg bg-card/50">
                 <div className="flex items-center gap-3">
                   <Shield className="w-8 h-8 text-muted-foreground" />
-                  <span className="text-muted-foreground">TIME A DEFINIR</span>
+                  <span className="text-muted-foreground">A DEFINIR</span>
                 </div>
                 <span className="text-sm font-mono text-muted-foreground">VS</span>
                 <div className="flex items-center gap-3">
-                  <span className="text-muted-foreground">TIME A DEFINIR</span>
+                  <span className="text-muted-foreground">A DEFINIR</span>
                   <Shield className="w-8 h-8 text-muted-foreground" />
                 </div>
               </div>
@@ -55,58 +61,62 @@ export const PreviewStandings = ({ teamsCount, format, groupsCount = 4 }: Previe
 
   return (
     <div className="space-y-6">
-      <Card className="border-primary/20">
-        <CardHeader>
-          <CardTitle>Pré-visualização - Fase de Grupos</CardTitle>
-          <CardDescription>
-            Após o sorteio, os times serão distribuídos automaticamente entre os grupos
-          </CardDescription>
-        </CardHeader>
-      </Card>
+      <div className="mb-6">
+        <h3 className="text-2xl font-bold mb-2">Classificação</h3>
+        <p className="text-sm text-muted-foreground">
+          Após o sorteio, os times serão distribuídos automaticamente entre os grupos
+        </p>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {groups.map((group) => (
-          <Card key={group.name} className="border-primary/20">
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span>{group.name}</span>
-                <Badge variant="outline">{group.teams.length} times</Badge>
-              </CardTitle>
+        {groups.map((group, groupIndex) => (
+          <Card key={group.name} className="border-primary/20 bg-card/50">
+            <CardHeader className="pb-4">
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2 text-xl">
+                  <Shield className="w-5 h-5" />
+                  {group.name}
+                </CardTitle>
+                <Badge variant="outline" className="text-muted-foreground">
+                  Pendente
+                </Badge>
+              </div>
             </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-12">#</TableHead>
-                    <TableHead>Time</TableHead>
-                    <TableHead className="text-center">P</TableHead>
-                    <TableHead className="text-center">J</TableHead>
-                    <TableHead className="text-center">V</TableHead>
-                    <TableHead className="text-center">E</TableHead>
-                    <TableHead className="text-center">D</TableHead>
-                    <TableHead className="text-center">SG</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {group.teams.map((team) => (
-                    <TableRow key={team.position} className="opacity-60">
-                      <TableCell className="font-medium">{team.position}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Shield className="w-6 h-6 text-muted-foreground" />
-                          <span className="text-muted-foreground">TIME A DEFINIR</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-center text-muted-foreground">0</TableCell>
-                      <TableCell className="text-center text-muted-foreground">0</TableCell>
-                      <TableCell className="text-center text-muted-foreground">0</TableCell>
-                      <TableCell className="text-center text-muted-foreground">0</TableCell>
-                      <TableCell className="text-center text-muted-foreground">0</TableCell>
-                      <TableCell className="text-center text-muted-foreground">0</TableCell>
-                    </TableRow>
+            <CardContent className="p-0">
+              <div className="overflow-hidden">
+                <div className="grid grid-cols-[1fr,auto,auto,auto,auto] gap-2 px-6 py-3 text-xs font-medium text-muted-foreground border-b border-border/50">
+                  <div>Time</div>
+                  <div className="text-center w-12">P</div>
+                  <div className="text-center w-12">V</div>
+                  <div className="text-center w-12">SG</div>
+                  <div className="text-center w-12">GP</div>
+                </div>
+                
+                <div className="space-y-1 p-2">
+                  {group.teams.map((team, index) => (
+                    <div
+                      key={index}
+                      className="grid grid-cols-[1fr,auto,auto,auto,auto] gap-2 px-4 py-3 rounded-lg bg-background/50 border border-border/30 items-center"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Shield className="w-6 h-6 text-muted-foreground/50" />
+                        <span className="font-medium text-muted-foreground">A DEFINIR</span>
+                      </div>
+                      <div className="text-center w-12 font-bold">{team.points}</div>
+                      <div className="text-center w-12 text-muted-foreground">{team.wins}</div>
+                      <div className="text-center w-12 text-muted-foreground">{team.goalDifference}</div>
+                      <div className="text-center w-12 text-muted-foreground">{team.goalsFor}</div>
+                    </div>
                   ))}
-                </TableBody>
-              </Table>
+                </div>
+              </div>
+              
+              <div className="px-4 py-3 mt-2 border-t border-border/50">
+                <p className="text-xs text-muted-foreground flex items-center gap-2">
+                  <span>→</span>
+                  <span>Times classificados serão definidos após o sorteio</span>
+                </p>
+              </div>
             </CardContent>
           </Card>
         ))}
