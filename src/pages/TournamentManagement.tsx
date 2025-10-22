@@ -17,6 +17,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Trophy, ArrowLeft, Users, Settings, Info, Trash2, CheckCircle, XCircle, Clock, DollarSign } from "lucide-react";
 import { toast } from "sonner";
 import { MatchManagement } from "@/components/tournaments/MatchManagement";
+import { TeamApprovalSection } from "@/components/tournaments/TeamApprovalSection";
+import { PreviewStandings } from "@/components/tournaments/PreviewStandings";
+import { PreviewMatches } from "@/components/tournaments/PreviewMatches";
 
 const TournamentManagement = () => {
   const { id } = useParams();
@@ -229,14 +232,18 @@ const TournamentManagement = () => {
 
       <div className="container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 max-w-2xl">
+          <TabsList className="grid w-full grid-cols-5 max-w-3xl">
             <TabsTrigger value="overview">
               <Info className="h-4 w-4 mr-2" />
               Visão Geral
             </TabsTrigger>
-            <TabsTrigger value="teams">
-              <Users className="h-4 w-4 mr-2" />
-              Times
+            <TabsTrigger value="approvals">
+              <CheckCircle className="h-4 w-4 mr-2" />
+              Aprovações
+            </TabsTrigger>
+            <TabsTrigger value="standings">
+              <Trophy className="h-4 w-4 mr-2" />
+              Classificação
             </TabsTrigger>
             <TabsTrigger value="matches">
               <Trophy className="h-4 w-4 mr-2" />
@@ -403,90 +410,59 @@ const TournamentManagement = () => {
           </TabsContent>
 
           {/* Teams Tab */}
-          <TabsContent value="teams" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Times Inscritos</CardTitle>
-                <CardDescription>Gerencie as inscrições e pagamentos dos times</CardDescription>
-              </CardHeader>
-              <CardContent>
-                {teamsLoading ? (
-                  <div className="space-y-4">
-                    {[1, 2, 3].map((i) => <Skeleton key={i} className="h-20 w-full" />)}
-                  </div>
-                ) : teams && teams.length > 0 ? (
-                  <div className="space-y-4">
-                    {teams.map((team) => (
-                      <Card key={team.id} className="bg-card/30">
-                        <CardContent className="p-4">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-4">
-                              {team.logo_url ? (
-                                <img 
-                                  src={team.logo_url} 
-                                  alt={team.name} 
-                                  className="w-12 h-12 rounded-full object-cover"
-                                />
-                              ) : team.emoji ? (
-                                <span className="text-3xl">{team.emoji}</span>
-                              ) : (
-                                <Users className="w-12 h-12 text-muted-foreground" />
-                              )}
-                              <div>
-                                <h4 className="font-semibold">{team.name}</h4>
-                                <p className="text-sm text-muted-foreground">
-                                  Capitão: {team.profiles?.name}
-                                </p>
-                                <p className="text-sm text-muted-foreground">
-                                  {team.players_count} jogadores
-                                </p>
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-3">
-                              {getPaymentStatusBadge(team.payment_status)}
-                              {team.payment_status === "pending" && (
-                                <div className="flex gap-2">
-                                  <Button
-                                    size="sm"
-                                    variant="default"
-                                    onClick={() => updateTeamPaymentMutation.mutate({ teamId: team.id, status: "approved" })}
-                                  >
-                                    <CheckCircle className="h-4 w-4 mr-1" />
-                                    Aprovar
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    variant="destructive"
-                                    onClick={() => updateTeamPaymentMutation.mutate({ teamId: team.id, status: "rejected" })}
-                                  >
-                                    <XCircle className="h-4 w-4 mr-1" />
-                                    Rejeitar
-                                  </Button>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-12">
-                    <Users className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">Nenhum time inscrito</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Os times começarão a aparecer aqui quando se inscreverem.
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-            </TabsContent>
+          <TabsContent value="approvals" className="space-y-6">
+            <TeamApprovalSection 
+              teams={teams || []}
+              onApprove={(teamId) => updateTeamPaymentMutation.mutate({ teamId, status: "approved" })}
+              onReject={(teamId) => updateTeamPaymentMutation.mutate({ teamId, status: "rejected" })}
+              isUpdating={updateTeamPaymentMutation.isPending}
+            />
+          </TabsContent>
 
-            {/* Matches Tab */}
-            <TabsContent value="matches">
-              <MatchManagement tournamentId={id!} matches={matches as any} teams={teams as any || []} />
-            </TabsContent>
+          {/* Standings Tab */}
+          <TabsContent value="standings" className="space-y-6">
+            {teams && teams.length > 0 ? (
+              <PreviewStandings 
+                teamsCount={teams.length}
+                format={tournament.format}
+                groupsCount={4}
+              />
+            ) : (
+              <Card>
+                <CardContent className="py-12 text-center">
+                  <Trophy className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">Aguardando inscrições</h3>
+                  <p className="text-muted-foreground">
+                    A pré-visualização da classificação aparecerá quando times se inscreverem
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          {/* Matches Tab */}
+          <TabsContent value="matches">
+            {teams && teams.length > 0 ? (
+              matches && matches.length > 0 ? (
+                <MatchManagement tournamentId={id!} matches={matches as any} teams={teams as any || []} />
+              ) : (
+                <PreviewMatches 
+                  teamsCount={teams.length}
+                  format={tournament.format}
+                />
+              )
+            ) : (
+              <Card>
+                <CardContent className="py-12 text-center">
+                  <Trophy className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">Aguardando inscrições</h3>
+                  <p className="text-muted-foreground">
+                    A pré-visualização das partidas aparecerá quando times se inscreverem
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
 
             {/* Settings Tab */}
           <TabsContent value="settings" className="space-y-6">

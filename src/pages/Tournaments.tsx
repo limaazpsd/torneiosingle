@@ -124,48 +124,68 @@ const Tournaments = () => {
                   onClick={() => navigate(`/tournament/${tournament.id}`)}
                 >
                   <CardContent className="p-6">
-                    <div className="flex items-start justify-between mb-4">
-                      <Badge variant={statusBadge.variant} className="text-xs">
-                        {statusBadge.label}
-                      </Badge>
-                      <Badge variant="outline" className="text-xs">
-                        {tournament.sport}
-                      </Badge>
-                    </div>
+                    <div className="flex gap-4">
+                      {/* Logo do Torneio */}
+                      <div className="flex-shrink-0 flex items-center justify-center">
+                        {tournament.logo_url ? (
+                          <img 
+                            src={tournament.logo_url} 
+                            alt={tournament.name}
+                            className="w-20 h-20 object-contain rounded-lg border border-border"
+                          />
+                        ) : (
+                          <div className="w-20 h-20 rounded-lg border border-border bg-card/50 flex items-center justify-center">
+                            <Trophy className="h-10 w-10 text-muted-foreground" />
+                          </div>
+                        )}
+                      </div>
 
-                    <h3 className="text-xl font-bold mb-3 line-clamp-2">{tournament.name}</h3>
+                      {/* Informações do Torneio */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between mb-3">
+                          <Badge variant={statusBadge.variant} className="text-xs">
+                            {statusBadge.label}
+                          </Badge>
+                          <Badge variant="outline" className="text-xs">
+                            {tournament.sport}
+                          </Badge>
+                        </div>
 
-                    <div className="space-y-2 mb-4">
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Calendar className="h-4 w-4" />
-                        <span>{new Date(tournament.start_date).toLocaleDateString('pt-BR')}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <MapPin className="h-4 w-4" />
-                        <span className="line-clamp-1">{tournament.location}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <Users className="h-4 w-4 text-primary" />
-                        <span>
-                          {tournament.available_spots > 0
-                            ? `${tournament.available_spots} vagas disponíveis`
-                            : "Esgotado"}
-                        </span>
-                      </div>
-                    </div>
+                        <h3 className="text-xl font-bold mb-3 line-clamp-2">{tournament.name}</h3>
 
-                    <div className="flex items-center justify-between pt-4 border-t border-border">
-                      <div className="flex items-center gap-2">
-                        <DollarSign className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm font-semibold">
-                          R$ {Number(tournament.entry_fee).toFixed(2)}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Award className="h-4 w-4 text-secondary" />
-                        <span className="text-sm font-semibold text-secondary">
-                          R$ {Number(tournament.prize_pool).toFixed(2)}
-                        </span>
+                        <div className="space-y-2 mb-4">
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Calendar className="h-4 w-4" />
+                            <span>{new Date(tournament.start_date).toLocaleDateString('pt-BR')}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <MapPin className="h-4 w-4" />
+                            <span className="line-clamp-1">{tournament.location}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm">
+                            <Users className="h-4 w-4 text-primary" />
+                            <span>
+                              {tournament.available_spots > 0
+                                ? `${tournament.available_spots} vagas disponíveis`
+                                : "Esgotado"}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between pt-4 border-t border-border">
+                          <div className="flex items-center gap-2">
+                            <DollarSign className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm font-semibold">
+                              R$ {Number(tournament.entry_fee).toFixed(2)}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Award className="h-4 w-4 text-secondary" />
+                            <span className="text-sm font-semibold text-secondary">
+                              R$ {Number(tournament.prize_pool).toFixed(2)}
+                            </span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </CardContent>

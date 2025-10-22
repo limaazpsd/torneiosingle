@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Trophy, Calendar, MapPin, Users, Award, Share2, Shield } from "lucide-react";
 import { Link, useParams, useNavigate } from "react-router-dom";
@@ -590,31 +591,39 @@ const PublicTournament = () => {
                       {teams.map((team: any) => (
                         <Card key={team.id} className="bg-card/30">
                           <CardContent className="p-4">
-                            <div className="flex items-center gap-3">
-                              {team.logo_url ? (
-                                <img 
-                                  src={team.logo_url} 
-                                  alt={team.name} 
-                                  className="w-12 h-12 rounded-full object-cover"
-                                />
-                              ) : team.emoji ? (
-                                <span className="text-3xl">{team.emoji}</span>
-                              ) : (
-                                <Users className="w-12 h-12 text-muted-foreground" />
-                              )}
-                              <div className="flex-1">
-                                <h3 className="font-semibold">{team.name}</h3>
-                                <p className="text-sm text-muted-foreground">
-                                  {team.players_count} jogadores
-                                </p>
+                            <div className="flex items-center justify-between gap-3">
+                              <div className="flex items-center gap-3 flex-1">
+                                {team.logo_url ? (
+                                  <img 
+                                    src={team.logo_url} 
+                                    alt={team.name} 
+                                    className="w-12 h-12 rounded-full object-cover"
+                                  />
+                                ) : team.emoji ? (
+                                  <span className="text-3xl">{team.emoji}</span>
+                                ) : (
+                                  <Shield className="w-12 h-12 text-muted-foreground" />
+                                )}
+                                <div className="flex-1">
+                                  <h3 className="font-semibold">{team.name}</h3>
+                                  <p className="text-sm text-muted-foreground">
+                                    {team.players_count} jogadores
+                                  </p>
+                                </div>
                               </div>
-                              <div className={`px-2 py-1 rounded-full text-xs ${
-                                team.payment_status === 'paid'
-                                  ? 'bg-primary/20 text-primary'
-                                  : 'bg-muted text-muted-foreground'
-                              }`}>
-                                {team.payment_status === 'paid' ? 'Confirmado' : 'Pendente'}
-                              </div>
+                              <Badge 
+                                className={
+                                  team.payment_status === 'approved'
+                                    ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+                                    : team.payment_status === 'rejected'
+                                    ? 'bg-red-500/20 text-red-400 border-red-500/30'
+                                    : 'bg-amber-500/20 text-amber-400 border-amber-500/30'
+                                }
+                              >
+                                {team.payment_status === 'approved' ? 'PAGO' : 
+                                 team.payment_status === 'rejected' ? 'REJEITADO' : 
+                                 'PENDENTE'}
+                              </Badge>
                             </div>
                           </CardContent>
                         </Card>
