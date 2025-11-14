@@ -17,6 +17,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Trophy, ArrowLeft, Users, Settings, Info, Trash2, CheckCircle, XCircle, Clock, DollarSign } from "lucide-react";
 import { toast } from "sonner";
 import { MatchManagement } from "@/components/tournaments/MatchManagement";
+import { MatchScheduler } from "@/components/tournaments/MatchScheduler";
 import { TeamApprovalSection } from "@/components/tournaments/TeamApprovalSection";
 import { PreviewStandings } from "@/components/tournaments/PreviewStandings";
 import { PreviewMatches } from "@/components/tournaments/PreviewMatches";
@@ -86,6 +87,21 @@ const TournamentManagement = () => {
         `)
         .eq('tournament_id', tournament?.id)
         .order('match_date');
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!tournament?.id,
+  });
+
+  // Fetch groups
+  const { data: groups = [] } = useQuery({
+    queryKey: ["tournament-groups", tournament?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('groups')
+        .select('*')
+        .eq('tournament_id', tournament?.id)
+        .order('display_order');
       if (error) throw error;
       return data || [];
     },
@@ -488,16 +504,23 @@ const TournamentManagement = () => {
           </TabsContent>
 
           {/* Matches Tab */}
-          <TabsContent value="matches">
+          <TabsContent value="matches" className="space-y-6">
             {teams && teams.length > 0 ? (
-              matches && matches.length > 0 ? (
-                <MatchManagement tournamentId={tournament?.id!} matches={matches as any} teams={teams as any || []} />
-              ) : (
-                <PreviewMatches 
-                  teamsCount={teams.length}
+              <>
+                {/* Match Scheduler */}
+                <MatchScheduler 
+                  tournamentId={tournament?.id!}
+                  teams={teams as any || []}
+                  groups={groups || []}
+                  location={tournament.location}
                   format={tournament.format}
                 />
-              )
+                
+                {/* Existing Matches */}
+                {matches && matches.length > 0 && (
+                  <MatchManagement tournamentId={tournament?.id!} matches={matches as any} teams={teams as any || []} />
+                )}
+              </>
             ) : (
               <Card>
                 <CardContent className="py-12 text-center">

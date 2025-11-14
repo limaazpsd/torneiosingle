@@ -185,7 +185,19 @@ export function GroupStandings({
                       }`}
                     >
                       <div className="col-span-5 flex items-center gap-2">
-                        {team.emoji && <span className="text-2xl">{team.emoji}</span>}
+                        {team.logo_url ? (
+                          <img
+                            src={team.logo_url}
+                            alt={team.name}
+                            className="w-8 h-8 rounded-full object-cover border-2 border-primary/20"
+                          />
+                        ) : team.emoji ? (
+                          <span className="text-2xl">{team.emoji}</span>
+                        ) : (
+                          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                            <span className="text-sm">⚽</span>
+                          </div>
+                        )}
                         <span className="font-semibold text-foreground">{team.name}</span>
                       </div>
                       <div className="col-span-2 text-center font-bold text-foreground">{stats.points}</div>
