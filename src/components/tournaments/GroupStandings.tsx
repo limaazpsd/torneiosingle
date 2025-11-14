@@ -1,5 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -113,6 +115,19 @@ export function GroupStandings({
 
   // Ordenar grupos por display_order
   const sortedGroups = [...groups].sort((a, b) => a.display_order - b.display_order);
+
+  // Verificar se há grupos configurados
+  if (!groups || groups.length === 0) {
+    return (
+      <Alert>
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>Grupos não configurados</AlertTitle>
+        <AlertDescription>
+          Este torneio precisa ter grupos criados. Entre no painel de gerenciamento para criar os grupos.
+        </AlertDescription>
+      </Alert>
+    );
+  }
 
   return (
     <div className="grid gap-6 md:grid-cols-2">
