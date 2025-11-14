@@ -21,6 +21,7 @@ import { TeamApprovalSection } from "@/components/tournaments/TeamApprovalSectio
 import { PreviewStandings } from "@/components/tournaments/PreviewStandings";
 import { PreviewMatches } from "@/components/tournaments/PreviewMatches";
 import { PopulateDrawsButton } from "@/components/tournaments/PopulateDrawsButton";
+import { CreateGroupsButton } from "@/components/tournaments/CreateGroupsButton";
 
 const TournamentManagement = () => {
   const { slug } = useParams();
@@ -293,19 +294,21 @@ const TournamentManagement = () => {
               </Card>
             </div>
 
-            {/* Botão de Sorteio para formatos com grupos ou mata-mata */}
+            {/* Botão de Sorteio e Criação de Grupos */}
             {(tournament.format === 'groups-knockout' || 
               tournament.format === 'groups-only' || 
               tournament.format === 'knockout') && (
               <Card>
                 <CardHeader>
-                  <CardTitle>Sorteio de Times</CardTitle>
+                  <CardTitle>Gerenciar Estrutura do Torneio</CardTitle>
                   <CardDescription>
-                    Realize o sorteio dos times para distribuí-los automaticamente nos grupos ou chaveamento.
-                    Times já sorteados não serão afetados.
+                    Configure grupos e realize o sorteio dos times para distribuí-los automaticamente.
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="flex gap-2">
+                  {(tournament.format === 'groups-knockout' || tournament.format === 'groups-only') && (
+                    <CreateGroupsButton tournamentId={tournament.id} />
+                  )}
                   <PopulateDrawsButton tournamentId={tournament.id} />
                 </CardContent>
               </Card>

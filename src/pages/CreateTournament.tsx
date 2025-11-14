@@ -164,6 +164,34 @@ const CreateTournament = () => {
 
       if (error) throw error;
 
+      // Se formato tem grupos, criar grupos automaticamente
+      if (values.format === 'groups-knockout' || values.format === 'groups-only') {
+        const calculateNumGroups = (maxParticipants: number): number => {
+          if (maxParticipants <= 8) return 2;
+          if (maxParticipants <= 16) return 4;
+          if (maxParticipants <= 24) return 4;
+          if (maxParticipants <= 32) return 8;
+          return 4;
+        };
+
+        const numGroups = calculateNumGroups(values.max_participants);
+        const groupLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+        
+        const groupsToInsert = Array.from({ length: numGroups }, (_, i) => ({
+          tournament_id: data.id,
+          name: `Grupo ${groupLetters[i]}`,
+          display_order: i + 1
+        }));
+        
+        const { error: groupsError } = await supabase
+          .from('groups')
+          .insert(groupsToInsert);
+        
+        if (groupsError) {
+          console.error('Error creating groups:', groupsError);
+        }
+      }
+
       toast({
         title: "Sucesso!",
         description: "Torneio criado com sucesso",
