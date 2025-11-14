@@ -208,6 +208,10 @@ const PublicTournament = () => {
     setIsRegistering(true);
 
     try {
+      // Determine payment status based on entry fee
+      const isFree = !tournament?.entry_fee || tournament.entry_fee === 0;
+      const paymentStatus = isFree ? 'approved' : 'pending';
+
       // Insert team into tournament
       const { data: newTeam, error: teamError } = await supabase
         .from('teams')
@@ -219,7 +223,7 @@ const PublicTournament = () => {
           logo_url: selectedTeam.logo_url,
           independent_team_id: selectedTeam.id,
           players_count: playersCount,
-          payment_status: 'pending',
+          payment_status: paymentStatus,
         }])
         .select()
         .single();
@@ -252,7 +256,9 @@ const PublicTournament = () => {
 
       toast({
         title: "Time inscrito com sucesso!",
-        description: "Aguarde a confirmação do pagamento pelo organizador",
+        description: isFree 
+          ? "Seu time está confirmado no torneio!" 
+          : "Aguarde a aprovação do organizador e confirmação do pagamento",
       });
 
       setShowRegisterDialog(false);
