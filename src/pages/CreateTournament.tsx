@@ -287,7 +287,7 @@ const CreateTournament = () => {
                               <SelectContent>
                                 <SelectItem value="groups-knockout">Grupos + Mata-Mata</SelectItem>
                                 <SelectItem value="knockout">Mata-Mata Simples</SelectItem>
-                                <SelectItem value="league">Pontos Corridos</SelectItem>
+                                <SelectItem value="round-robin">Pontos Corridos</SelectItem>
                                 <SelectItem value="fighting">Torneio de Luta</SelectItem>
                               </SelectContent>
                             </Select>
