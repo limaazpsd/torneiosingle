@@ -58,7 +58,23 @@ export function GroupStandings({
 
   // Organizar times por grupo
   const getTeamsForGroup = (groupId: string) => {
-    // Buscar times sorteados para este grupo
+    // Se não há sorteios, distribuir times sequencialmente (torneios antigos)
+    if (teamDraws.length === 0 && registeredTeams.length > 0) {
+      const groupIndex = groups.findIndex(g => g.id === groupId);
+      const teamsInGroup: Team[] = [];
+      
+      for (let i = groupIndex; i < registeredTeams.length; i += groups.length) {
+        if (teamsInGroup.length < teamsPerGroup) {
+          teamsInGroup.push(registeredTeams[i]);
+        }
+      }
+      
+      const emptySlots = Math.max(0, teamsPerGroup - teamsInGroup.length);
+      const placeholders = Array(emptySlots).fill(null);
+      return [...teamsInGroup, ...placeholders];
+    }
+    
+    // Buscar times sorteados para este grupo (torneios novos)
     const drawnTeamIds = teamDraws
       .filter(draw => draw.group_id === groupId)
       .map(draw => draw.team_id);
@@ -68,7 +84,7 @@ export function GroupStandings({
     );
 
     // Preencher com "A DEFINIR" se necessário
-    const emptySlots = teamsPerGroup - drawnTeams.length;
+    const emptySlots = Math.max(0, teamsPerGroup - drawnTeams.length);
     const placeholders = Array(emptySlots).fill(null);
 
     return [...drawnTeams, ...placeholders];

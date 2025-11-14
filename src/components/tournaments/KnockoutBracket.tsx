@@ -33,11 +33,18 @@ export function KnockoutBracket({ registeredTeams, teamDraws, maxParticipants }:
 
   // Obter time para uma posição
   const getTeamForPosition = (position: number) => {
-    const draw = teamDraws.find(d => d.bracket_position === position);
-    if (draw) {
-      return registeredTeams.find(t => t.id === draw.team_id);
+    // Se há sorteios, usar o sistema novo
+    if (teamDraws.length > 0) {
+      const draw = teamDraws.find(d => d.bracket_position === position);
+      if (draw) {
+        return registeredTeams.find(t => t.id === draw.team_id);
+      }
+      return null;
     }
-    return null;
+    
+    // Para torneios antigos sem sorteio, distribuir sequencialmente
+    const index = position - 1;
+    return registeredTeams[index] || null;
   };
 
   // Criar confrontos por fase

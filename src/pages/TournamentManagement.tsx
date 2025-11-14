@@ -20,6 +20,7 @@ import { MatchManagement } from "@/components/tournaments/MatchManagement";
 import { TeamApprovalSection } from "@/components/tournaments/TeamApprovalSection";
 import { PreviewStandings } from "@/components/tournaments/PreviewStandings";
 import { PreviewMatches } from "@/components/tournaments/PreviewMatches";
+import { PopulateDrawsButton } from "@/components/tournaments/PopulateDrawsButton";
 
 const TournamentManagement = () => {
   const { slug } = useParams();
@@ -291,6 +292,24 @@ const TournamentManagement = () => {
                 </CardContent>
               </Card>
             </div>
+
+            {/* Botão de Sorteio para formatos com grupos ou mata-mata */}
+            {(tournament.format === 'groups-knockout' || 
+              tournament.format === 'groups-only' || 
+              tournament.format === 'knockout') && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Sorteio de Times</CardTitle>
+                  <CardDescription>
+                    Realize o sorteio dos times para distribuí-los automaticamente nos grupos ou chaveamento.
+                    Times já sorteados não serão afetados.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <PopulateDrawsButton tournamentId={tournament.id} />
+                </CardContent>
+              </Card>
+            )}
 
             <Card>
               <CardHeader>

@@ -4,6 +4,8 @@ import { GroupStandings } from "./GroupStandings";
 import { KnockoutBracket } from "./KnockoutBracket";
 import { RoundRobinStandings } from "./RoundRobinStandings";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Info } from "lucide-react";
 
 interface Tournament {
   id: string;
@@ -81,12 +83,28 @@ export function TournamentStandings({ tournament, teams }: Props) {
   // Filtrar apenas times aprovados
   const approvedTeams = teams.filter(t => t.payment_status === 'approved');
 
+  // Verificar se há times mas sem sorteio (para mostrar alerta)
+  const hasTeamsWithoutDraws = approvedTeams.length > 0 && teamDraws.length === 0;
+
   if (isLoading) {
     return (
       <div className="space-y-4">
         <Skeleton className="h-[200px]" />
         <Skeleton className="h-[200px]" />
       </div>
+    );
+  }
+
+  if (hasTeamsWithoutDraws) {
+    return (
+      <Alert>
+        <Info className="h-4 w-4" />
+        <AlertDescription>
+          O organizador ainda não realizou o sorteio dos times. 
+          {approvedTeams.length > 0 && ` Já há ${approvedTeams.length} time(s) inscrito(s).`}
+          {' '}A classificação será exibida após o sorteio.
+        </AlertDescription>
+      </Alert>
     );
   }
 
