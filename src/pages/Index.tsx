@@ -31,7 +31,7 @@ const Index = () => {
           <div className="flex items-center gap-4">
             {user ? (
               <>
-                <Link to="/dashboard">
+                <Link to="/painel">
                   <Button variant="ghost">
                     <User className="h-4 w-4 mr-2" />
                     Meu Painel
@@ -73,7 +73,7 @@ const Index = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               {user ? (
-                <Link to="/create-tournament">
+                <Link to="/criar-torneio">
                   <Button variant="hero" size="lg" className="text-lg">
                     Criar meu torneio agora
                   </Button>
@@ -261,7 +261,7 @@ const Index = () => {
                 Explore torneios de diversos esportes, encontre competições na sua região
                 e inscreva seu time em campeonatos emocionantes.
               </p>
-              <Link to="/tournaments">
+              <Link to="/torneios">
                 <Button variant="hero" size="lg">
                   <Trophy className="mr-2" />
                   Explorar Torneios
@@ -405,7 +405,7 @@ const Index = () => {
                 Comece a usar o Torneio Pro hoje mesmo e ofereça a melhor experiência para seus competidores.
               </p>
               {user ? (
-                <Link to="/create-tournament">
+                <Link to="/criar-torneio">
                   <Button variant="hero" size="lg" className="text-lg">
                     Criar meu torneio agora
                   </Button>

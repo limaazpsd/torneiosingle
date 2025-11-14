@@ -169,7 +169,7 @@ const CreateTournament = () => {
         description: "Torneio criado com sucesso",
       });
 
-      navigate(`/tournament/${data?.id || ''}`);
+      navigate(`/torneio/${data?.slug || ''}`);
     } catch (error: any) {
       toast({
         title: "Erro",
@@ -195,7 +195,7 @@ const CreateTournament = () => {
 
       <div className="container mx-auto px-6 md:px-8 lg:px-12 py-8">
         <div className="max-w-3xl mx-auto">
-          <Link to="/dashboard">
+          <Link to="/painel">
             <Button variant="ghost" className="mb-6">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Voltar ao Dashboard
@@ -528,7 +528,7 @@ const CreateTournament = () => {
                     <Button variant="hero" className="flex-1" type="submit" disabled={isSubmitting}>
                       {isSubmitting ? "Criando..." : "Criar Torneio"}
                     </Button>
-                    <Link to="/dashboard" className="flex-1">
+                    <Link to="/painel" className="flex-1">
                       <Button variant="ghost" className="w-full" type="button">
                         Cancelar
                       </Button>

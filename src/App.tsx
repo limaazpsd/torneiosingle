@@ -29,7 +29,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route 
-              path="/dashboard" 
+              path="/painel" 
               element={
                 <ProtectedRoute>
                   <Dashboard />
@@ -37,7 +37,7 @@ const App = () => (
               } 
             />
             <Route 
-              path="/create-tournament" 
+              path="/criar-torneio" 
               element={
                 <ProtectedRoute>
                   <CreateTournament />
@@ -45,17 +45,17 @@ const App = () => (
               } 
             />
             <Route 
-              path="/manage-tournament/:id" 
+              path="/editar-torneio/:slug" 
               element={
                 <ProtectedRoute>
                   <TournamentManagement />
                 </ProtectedRoute>
               } 
             />
-            <Route path="/tournament/:slug" element={<PublicTournament />} />
-            <Route path="/tournaments" element={<Tournaments />} />
+            <Route path="/torneio/:slug" element={<PublicTournament />} />
+            <Route path="/torneios" element={<Tournaments />} />
             <Route 
-              path="/create-team" 
+              path="/criar-time" 
               element={
                 <ProtectedRoute>
                   <CreateIndependentTeam />
@@ -63,7 +63,7 @@ const App = () => (
               } 
             />
             <Route 
-              path="/team/:teamId" 
+              path="/time/:teamId" 
               element={
                 <ProtectedRoute>
                   <TeamManagement />
@@ -72,7 +72,7 @@ const App = () => (
             />
             <Route path="/demo" element={<Demo />} />
             <Route 
-              path="/profile" 
+              path="/perfil" 
               element={
                 <ProtectedRoute>
                   <Profile />

@@ -34,14 +34,14 @@ const Dashboard = () => {
             <span className="text-xl font-bold">Torneio Pro</span>
           </Link>
           <div className="flex items-center gap-4">
-            <Link to="/profile">
+            <Link to="/perfil">
               <Button variant="ghost">
                 <User className="mr-2 h-4 w-4" />
                 Meu Perfil
               </Button>
             </Link>
             <Button variant="ghost" onClick={signOut}>Sair</Button>
-            <Link to="/create-tournament">
+            <Link to="/criar-torneio">
               <Button variant="hero">
                 <Plus className="mr-2 h-4 w-4" />
                 Novo Torneio
@@ -117,7 +117,7 @@ const Dashboard = () => {
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   Meus Torneios
-                  <Link to="/create-tournament">
+                  <Link to="/criar-torneio">
                     <Button variant="hero" size="sm">
                       <Plus className="mr-2 h-4 w-4" />
                       Criar Novo
@@ -145,7 +145,7 @@ const Dashboard = () => {
                       <Card
                         key={tournament.id}
                         className="bg-card/30 border-border/50 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 cursor-pointer"
-                        onClick={() => navigate(`/tournament/${tournament.slug}`)}
+                        onClick={() => navigate(`/torneio/${tournament.slug}`)}
                       >
                         <CardContent className="p-6">
                           <div className="flex items-start justify-between">
@@ -178,7 +178,7 @@ const Dashboard = () => {
                             </div>
                             <Button variant="glow" size="sm" onClick={(e) => {
                               e.stopPropagation();
-                              navigate(`/manage-tournament/${tournament.id}`);
+                              navigate(`/editar-torneio/${tournament.slug}`);
                             }}>
                               Gerenciar
                             </Button>
@@ -194,7 +194,7 @@ const Dashboard = () => {
                     <p className="text-sm text-muted-foreground mb-4">
                       Comece criando seu primeiro torneio!
                     </p>
-                    <Link to="/create-tournament">
+                    <Link to="/criar-torneio">
                       <Button variant="hero">
                         <Plus className="mr-2 h-4 w-4" />
                         Criar Primeiro Torneio

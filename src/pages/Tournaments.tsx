@@ -41,7 +41,7 @@ const Tournaments = () => {
             <Trophy className="h-6 w-6 text-primary" />
             <span className="text-xl font-bold">Torneio Pro</span>
           </Link>
-          <Link to="/dashboard">
+          <Link to="/painel">
             <Button variant="hero">Meu Painel</Button>
           </Link>
         </div>
@@ -121,7 +121,7 @@ const Tournaments = () => {
                 <Card
                   key={tournament.id}
                   className="bg-card/50 border-primary/20 hover:border-primary/50 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 cursor-pointer"
-                  onClick={() => navigate(`/tournament/${tournament.slug}`)}
+                  onClick={() => navigate(`/torneio/${tournament.slug}`)}
                 >
                   <CardContent className="p-6">
                     <div className="flex gap-4">
@@ -202,7 +202,7 @@ const Tournaments = () => {
                 ? "Tente ajustar os filtros para encontrar torneios"
                 : "Seja o primeiro a criar um torneio!"}
             </p>
-            <Link to="/create-tournament">
+            <Link to="/criar-torneio">
               <Button variant="hero" size="lg">
                 Criar Meu Torneio
               </Button>

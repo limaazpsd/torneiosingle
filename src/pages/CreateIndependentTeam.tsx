@@ -91,7 +91,7 @@ const CreateIndependentTeam = () => {
       { ...formData, logo: logoFile || undefined },
       {
         onSuccess: () => {
-          navigate("/dashboard");
+          navigate("/painel");
         },
       }
     );
@@ -104,7 +104,7 @@ const CreateIndependentTeam = () => {
         <div className="container mx-auto px-6 md:px-8 lg:px-12 h-16 flex items-center justify-between">
           <Button
             variant="ghost"
-            onClick={() => navigate("/dashboard")}
+            onClick={() => navigate("/painel")}
             className="flex items-center gap-2"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -248,7 +248,7 @@ const CreateIndependentTeam = () => {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => navigate("/dashboard")}
+                  onClick={() => navigate("/painel")}
                   className="flex-1"
                 >
                   Cancelar
