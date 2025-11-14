@@ -510,27 +510,29 @@ const PublicTournament = () => {
               )}
             </div>
 
-            {/* Prize Pool */}
-            <Card className="border-secondary/30 bg-card/50">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <Award className="h-10 w-10 text-secondary" />
-                    <div>
-                      <p className="text-sm text-muted-foreground">Premiação Total</p>
-                      <p className="text-3xl font-bold text-secondary">
-                        R$ {Number(tournament.prize_pool).toFixed(2)}
-                      </p>
+            {/* Prize Pool - Only show for paid tournaments */}
+            {tournament.entry_fee > 0 && (
+              <Card className="border-secondary/30 bg-card/50">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <Award className="h-10 w-10 text-secondary" />
+                      <div>
+                        <p className="text-sm text-muted-foreground">Premiação Total</p>
+                        <p className="text-3xl font-bold text-secondary">
+                          R$ {Number(tournament.prize_pool).toFixed(2)}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right text-sm text-muted-foreground">
+                      <p>1º: R$ {((Number(tournament.prize_pool) * tournament.first_place_percentage) / 100).toFixed(2)} ({tournament.first_place_percentage}%)</p>
+                      <p>2º: R$ {((Number(tournament.prize_pool) * tournament.second_place_percentage) / 100).toFixed(2)} ({tournament.second_place_percentage}%)</p>
+                      <p>3º: R$ {((Number(tournament.prize_pool) * tournament.third_place_percentage) / 100).toFixed(2)} ({tournament.third_place_percentage}%)</p>
                     </div>
                   </div>
-                  <div className="text-right text-sm text-muted-foreground">
-                    <p>1º: R$ {((Number(tournament.prize_pool) * tournament.first_place_percentage) / 100).toFixed(2)} ({tournament.first_place_percentage}%)</p>
-                    <p>2º: R$ {((Number(tournament.prize_pool) * tournament.second_place_percentage) / 100).toFixed(2)} ({tournament.second_place_percentage}%)</p>
-                    <p>3º: R$ {((Number(tournament.prize_pool) * tournament.third_place_percentage) / 100).toFixed(2)} ({tournament.third_place_percentage}%)</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       </div>
