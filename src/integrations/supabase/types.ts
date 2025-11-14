@@ -306,6 +306,55 @@ export type Database = {
         }
         Relationships: []
       }
+      team_draws: {
+        Row: {
+          bracket_position: number | null
+          drawn_at: string | null
+          group_id: string | null
+          id: string
+          team_id: string
+          tournament_id: string
+        }
+        Insert: {
+          bracket_position?: number | null
+          drawn_at?: string | null
+          group_id?: string | null
+          id?: string
+          team_id: string
+          tournament_id: string
+        }
+        Update: {
+          bracket_position?: number | null
+          drawn_at?: string | null
+          group_id?: string | null
+          id?: string
+          team_id?: string
+          tournament_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_draws_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "team_draws_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "team_draws_tournament_id_fkey"
+            columns: ["tournament_id"]
+            isOneToOne: false
+            referencedRelation: "tournaments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       team_invitations: {
         Row: {
           created_at: string

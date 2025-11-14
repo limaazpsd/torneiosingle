@@ -17,7 +17,7 @@ import { useUserTeamsForTournament } from "@/hooks/useTournamentRegistration";
 import { TeamSelector } from "@/components/tournaments/TeamSelector";
 import { IndependentTeam } from "@/types/database";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
-import { StandingsTable } from "@/components/tournaments/StandingsTable";
+import { TournamentStandings } from "@/components/tournaments/TournamentStandings";
 import { MatchesList } from "@/components/tournaments/MatchesList";
 import { TopScorers } from "@/components/tournaments/TopScorers";
 
@@ -32,22 +32,6 @@ const PublicTournament = () => {
   const [selectedTeam, setSelectedTeam] = useState<(IndependentTeam & { members_count: number }) | null>(null);
   const [playersCount, setPlayersCount] = useState(1);
   const [showRegisterDialog, setShowRegisterDialog] = useState(false);
-  const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
-
-  // Fetch groups
-  const { data: groups = [] } = useQuery({
-    queryKey: ['tournament-groups', tournament?.id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('groups')
-        .select('*')
-        .eq('tournament_id', tournament?.id)
-        .order('display_order');
-      if (error) throw error;
-      return data || [];
-    },
-    enabled: !!tournament?.id,
-  });
 
   // Fetch matches
   const { data: matches = [] } = useQuery({
@@ -67,45 +51,6 @@ const PublicTournament = () => {
       return data as any || [];
     },
     enabled: !!tournament?.id,
-  });
-
-  // Fetch standings (from group_teams)
-  const { data: standings = [] } = useQuery({
-    queryKey: ['tournament-standings', tournament?.id, selectedGroupId],
-    queryFn: async () => {
-      let query = supabase
-        .from('group_teams')
-        .select(`
-          *,
-          teams(id, name, emoji, logo_url)
-        `);
-
-      if (selectedGroupId) {
-        query = query.eq('group_id', selectedGroupId);
-      } else if (groups.length > 0) {
-        // If no group selected but groups exist, show first group
-        query = query.eq('group_id', groups[0].id);
-      }
-
-      const { data, error } = await query.order('points', { ascending: false });
-      if (error) throw error;
-
-      return (data || []).map((gt: any) => ({
-        id: gt.team_id,
-        name: gt.teams?.name || '',
-        emoji: gt.teams?.emoji,
-        logo_url: gt.teams?.logo_url,
-        points: gt.points,
-        matches_played: gt.wins + gt.draws + gt.losses,
-        wins: gt.wins,
-        draws: gt.draws,
-        losses: gt.losses,
-        goals_for: gt.goals_for,
-        goals_against: gt.goals_against,
-        goal_difference: gt.goal_difference,
-      }));
-    },
-    enabled: !!tournament?.id && (groups.length > 0 || !tournament || tournament.format !== 'groups-knockout'),
   });
 
   // Fetch top scorers
@@ -145,13 +90,6 @@ const PublicTournament = () => {
     },
     enabled: !!tournament?.id && matches.length > 0,
   });
-
-  // Set first group as selected when groups load
-  useEffect(() => {
-    if (groups.length > 0 && !selectedGroupId) {
-      setSelectedGroupId(groups[0].id);
-    }
-  }, [groups, selectedGroupId]);
 
   const handleSelectTeam = (team: IndependentTeam & { members_count: number }) => {
     setSelectedTeam(team);
@@ -550,26 +488,8 @@ const PublicTournament = () => {
             </TabsList>
 
             {/* Standings Tab */}
-            <TabsContent value="standings" className="space-y-6">
-              {groups.length > 0 ? (
-                <>
-                  {/* Group Selector */}
-                  <div className="flex gap-2 flex-wrap">
-                    {groups.map((group: any) => (
-                      <Button
-                        key={group.id}
-                        variant={selectedGroupId === group.id ? "default" : "outline"}
-                        onClick={() => setSelectedGroupId(group.id)}
-                      >
-                        {group.name}
-                      </Button>
-                    ))}
-                  </div>
-                  <StandingsTable standings={standings} title={groups.find((g: any) => g.id === selectedGroupId)?.name} />
-                </>
-              ) : (
-                <StandingsTable standings={standings} />
-              )}
+            <TabsContent value="standings">
+              <TournamentStandings tournament={tournament} teams={tournament.teams || []} />
             </TabsContent>
 
             {/* Matches Tab */}
@@ -678,7 +598,7 @@ const PublicTournament = () => {
                       <p className="text-lg font-semibold">
                         {tournament.format === 'groups-knockout' && 'Grupos + Mata-Mata'}
                         {tournament.format === 'knockout' && 'Mata-Mata Simples'}
-                        {tournament.format === 'league' && 'Pontos Corridos'}
+                        {(tournament.format === 'round-robin' || tournament.format === 'league') && 'Pontos Corridos'}
                         {tournament.format === 'fighting' && 'Torneio de Luta'}
                       </p>
                     </div>
