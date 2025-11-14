@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Trophy, Calendar, MapPin, Users, Award, Share2, Shield } from "lucide-react";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { useTournament } from "@/hooks/useTournaments";
+import { useTournamentBySlug } from "@/hooks/useTournaments";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -22,12 +22,12 @@ import { MatchesList } from "@/components/tournaments/MatchesList";
 import { TopScorers } from "@/components/tournaments/TopScorers";
 
 const PublicTournament = () => {
-  const { id } = useParams<{ id: string }>();
+  const { slug } = useParams<{ slug: string }>();
   const { user } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { data: tournament, isLoading } = useTournament(id);
-  const { data: availableTeams = [], isLoading: isLoadingTeams } = useUserTeamsForTournament(id);
+  const { data: tournament, isLoading } = useTournamentBySlug(slug);
+  const { data: availableTeams = [], isLoading: isLoadingTeams } = useUserTeamsForTournament(tournament?.id);
   const [isRegistering, setIsRegistering] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState<(IndependentTeam & { members_count: number }) | null>(null);
   const [playersCount, setPlayersCount] = useState(1);
@@ -36,22 +36,22 @@ const PublicTournament = () => {
 
   // Fetch groups
   const { data: groups = [] } = useQuery({
-    queryKey: ['tournament-groups', id],
+    queryKey: ['tournament-groups', tournament?.id],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('groups')
         .select('*')
-        .eq('tournament_id', id)
+        .eq('tournament_id', tournament?.id)
         .order('display_order');
       if (error) throw error;
       return data || [];
     },
-    enabled: !!id,
+    enabled: !!tournament?.id,
   });
 
   // Fetch matches
   const { data: matches = [] } = useQuery({
-    queryKey: ['tournament-matches', id],
+    queryKey: ['tournament-matches', tournament?.id],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('matches')
@@ -61,17 +61,17 @@ const PublicTournament = () => {
           away_team:teams!matches_away_team_id_fkey(name, emoji, logo_url),
           group:groups(name)
         `)
-        .eq('tournament_id', id)
+        .eq('tournament_id', tournament?.id)
         .order('match_date');
       if (error) throw error;
       return data as any || [];
     },
-    enabled: !!id,
+    enabled: !!tournament?.id,
   });
 
   // Fetch standings (from group_teams)
   const { data: standings = [] } = useQuery({
-    queryKey: ['tournament-standings', id, selectedGroupId],
+    queryKey: ['tournament-standings', tournament?.id, selectedGroupId],
     queryFn: async () => {
       let query = supabase
         .from('group_teams')
@@ -105,12 +105,12 @@ const PublicTournament = () => {
         goal_difference: gt.goal_difference,
       }));
     },
-    enabled: !!id && (groups.length > 0 || !tournament || tournament.format !== 'groups-knockout'),
+    enabled: !!tournament?.id && (groups.length > 0 || !tournament || tournament.format !== 'groups-knockout'),
   });
 
   // Fetch top scorers
   const { data: topScorers = [] } = useQuery({
-    queryKey: ['tournament-scorers', id],
+    queryKey: ['tournament-scorers', tournament?.id],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('goals')
@@ -143,7 +143,7 @@ const PublicTournament = () => {
 
       return Array.from(scorersMap.values()).sort((a, b) => b.goals_count - a.goals_count);
     },
-    enabled: !!id && matches.length > 0,
+    enabled: !!tournament?.id && matches.length > 0,
   });
 
   // Set first group as selected when groups load
@@ -212,7 +212,7 @@ const PublicTournament = () => {
       const { data: newTeam, error: teamError } = await supabase
         .from('teams')
         .insert([{
-          tournament_id: id,
+          tournament_id: tournament?.id,
           name: selectedTeam.name,
           captain_id: user.id,
           emoji: selectedTeam.emoji,
@@ -260,8 +260,8 @@ const PublicTournament = () => {
       setPlayersCount(1);
       
       // Invalidate queries to refresh data
-      queryClient.invalidateQueries({ queryKey: ['tournament', id] });
-      queryClient.invalidateQueries({ queryKey: ['user-teams-for-tournament', user.id, id] });
+      queryClient.invalidateQueries({ queryKey: ['tournament', tournament?.id] });
+      queryClient.invalidateQueries({ queryKey: ['user-teams-for-tournament', user.id, tournament?.id] });
     } catch (error: any) {
       toast({
         title: "Erro ao inscrever time",

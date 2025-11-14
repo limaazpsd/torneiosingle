@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Trophy, Plus, Calendar, Users, DollarSign, TrendingUp } from "lucide-react";
+import { Trophy, Plus, Calendar, Users, DollarSign, TrendingUp, User } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMyTournaments, useMyTournamentStats } from "@/hooks/useTournaments";
@@ -34,6 +34,12 @@ const Dashboard = () => {
             <span className="text-xl font-bold">Torneio Pro</span>
           </Link>
           <div className="flex items-center gap-4">
+            <Link to="/profile">
+              <Button variant="ghost">
+                <User className="mr-2 h-4 w-4" />
+                Meu Perfil
+              </Button>
+            </Link>
             <Button variant="ghost" onClick={signOut}>Sair</Button>
             <Link to="/create-tournament">
               <Button variant="hero">
@@ -139,7 +145,7 @@ const Dashboard = () => {
                       <Card
                         key={tournament.id}
                         className="bg-card/30 border-border/50 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 cursor-pointer"
-                        onClick={() => navigate(`/tournament/${tournament.id}`)}
+                        onClick={() => navigate(`/tournament/${tournament.slug}`)}
                       >
                         <CardContent className="p-6">
                           <div className="flex items-start justify-between">

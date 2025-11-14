@@ -52,7 +52,7 @@ const App = () => (
                 </ProtectedRoute>
               } 
             />
-            <Route path="/tournament/:id" element={<PublicTournament />} />
+            <Route path="/tournament/:slug" element={<PublicTournament />} />
             <Route path="/tournaments" element={<Tournaments />} />
             <Route 
               path="/create-team" 

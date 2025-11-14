@@ -21,6 +21,7 @@ export interface Tournament {
   rules: string;
   status: string;
   is_public: boolean;
+  slug: string | null;
   created_at: string;
   updated_at: string;
   teams?: { count: number }[];
@@ -55,6 +56,7 @@ export const useMyTournaments = () => {
           ...tournament,
           teams_count: teamsCount,
           revenue: teamsCount * Number(tournament.entry_fee),
+          slug: tournament.slug,
           teams: undefined, // Remove teams array do retorno
         };
       }) as TournamentWithStats[];
@@ -168,5 +170,26 @@ export const useTournament = (id: string | undefined) => {
       return data;
     },
     enabled: !!id,
+  });
+};
+
+// Hook para buscar um torneio específico por slug
+export const useTournamentBySlug = (slug: string | undefined) => {
+  return useQuery({
+    queryKey: ['tournament-by-slug', slug],
+    queryFn: async () => {
+      if (!slug) return null;
+
+      const { data, error } = await (supabase as any)
+        .from('tournaments')
+        .select('*, teams(*, profiles(name))')
+        .eq('slug', slug)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      return data;
+    },
+    enabled: !!slug,
   });
 };
