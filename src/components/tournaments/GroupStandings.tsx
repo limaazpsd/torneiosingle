@@ -134,74 +134,68 @@ export function GroupStandings({
       {sortedGroups.map((group, index) => {
         const teams = getTeamsForGroup(group.id);
         const colorClass = groupColors[index % groupColors.length];
+        const borderColor = index % 2 === 0 ? 'border-cyan-500/30' : 'border-green-500/30';
+        const hoverBorder = index % 2 === 0 ? 'hover:border-cyan-500/60' : 'hover:border-green-500/60';
+        const hoverShadow = index % 2 === 0 ? 'hover:shadow-cyan-500/20' : 'hover:shadow-green-500/20';
+        const textColor = index % 2 === 0 ? 'text-cyan-400' : 'text-green-400';
+        const badgeBg = index % 2 === 0 ? 'bg-cyan-500/20 border-cyan-500/30' : 'bg-green-500/20 border-green-500/30';
 
         return (
-          <Card key={group.id}>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Badge variant="outline" className={colorClass}>
-                  {group.name}
-                </Badge>
+          <Card key={group.id} className={`bg-card/50 ${borderColor} ${hoverBorder} hover:shadow-xl ${hoverShadow} transition-all duration-300`}>
+            <CardHeader className="relative border-b border-border/20">
+              <CardTitle className={`${textColor} text-2xl flex items-center gap-2`}>
+                <span className="text-3xl">⚽</span>
+                {group.name}
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[50px]">Pos</TableHead>
-                    <TableHead>Time</TableHead>
-                    <TableHead className="text-center">P</TableHead>
-                    <TableHead className="text-center">J</TableHead>
-                    <TableHead className="text-center">V</TableHead>
-                    <TableHead className="text-center">E</TableHead>
-                    <TableHead className="text-center">D</TableHead>
-                    <TableHead className="text-center">SG</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {teams.map((team, idx) => {
-                    if (!team) {
-                      return (
-                        <TableRow key={`placeholder-${idx}`}>
-                          <TableCell className="font-medium">{idx + 1}</TableCell>
-                          <TableCell className="text-muted-foreground italic">
-                            A DEFINIR
-                          </TableCell>
-                          <TableCell className="text-center">-</TableCell>
-                          <TableCell className="text-center">-</TableCell>
-                          <TableCell className="text-center">-</TableCell>
-                          <TableCell className="text-center">-</TableCell>
-                          <TableCell className="text-center">-</TableCell>
-                          <TableCell className="text-center">-</TableCell>
-                        </TableRow>
-                      );
-                    }
-
-                    const stats = getTeamStats(team.id);
-                    const gamesPlayed = stats.wins + stats.draws + stats.losses;
-
+            <CardContent className="pt-6">
+              <div className="space-y-2">
+                <div className="grid grid-cols-12 gap-2 text-xs text-muted-foreground pb-2 border-b border-border/50">
+                  <div className="col-span-5">Time</div>
+                  <div className="col-span-2 text-center">P</div>
+                  <div className="col-span-2 text-center">V</div>
+                  <div className="col-span-2 text-center">SG</div>
+                  <div className="col-span-1 text-center">GP</div>
+                </div>
+                {teams.map((team, idx) => {
+                  if (!team) {
                     return (
-                      <TableRow key={team.id}>
-                        <TableCell className="font-medium">{idx + 1}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            {team.emoji && <span>{team.emoji}</span>}
-                            <span className="font-medium">{team.name}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-center font-bold">
-                          {stats.points}
-                        </TableCell>
-                        <TableCell className="text-center">{gamesPlayed}</TableCell>
-                        <TableCell className="text-center">{stats.wins}</TableCell>
-                        <TableCell className="text-center">{stats.draws}</TableCell>
-                        <TableCell className="text-center">{stats.losses}</TableCell>
-                        <TableCell className="text-center">{stats.goal_difference}</TableCell>
-                      </TableRow>
+                      <div key={`placeholder-${idx}`} className="grid grid-cols-12 gap-2 items-center p-3 rounded-lg border bg-card/30 border-border/30">
+                        <div className="col-span-5 text-muted-foreground italic">A DEFINIR</div>
+                        <div className="col-span-2 text-center text-muted-foreground">-</div>
+                        <div className="col-span-2 text-center text-muted-foreground">-</div>
+                        <div className="col-span-2 text-center text-muted-foreground">-</div>
+                        <div className="col-span-1 text-center text-muted-foreground">-</div>
+                      </div>
                     );
-                  })}
-                </TableBody>
-              </Table>
+                  }
+
+                  const stats = getTeamStats(team.id);
+                  const isQualified = idx < 2; // Top 2 qualify
+
+                  return (
+                    <div
+                      key={team.id}
+                      className={`grid grid-cols-12 gap-2 items-center p-3 rounded-lg border transition-all duration-300 ${
+                        isQualified
+                          ? index % 2 === 0
+                            ? "bg-cyan-500/10 border-cyan-500/30 hover:border-cyan-500/50 hover:shadow-md hover:shadow-cyan-500/10"
+                            : "bg-green-500/10 border-green-500/30 hover:border-green-500/50 hover:shadow-md hover:shadow-green-500/10"
+                          : "bg-card/30 border-border/30 hover:border-border/50"
+                      }`}
+                    >
+                      <div className="col-span-5 flex items-center gap-2">
+                        {team.emoji && <span className="text-2xl">{team.emoji}</span>}
+                        <span className="font-semibold text-foreground">{team.name}</span>
+                      </div>
+                      <div className="col-span-2 text-center font-bold text-foreground">{stats.points}</div>
+                      <div className="col-span-2 text-center text-muted-foreground">{stats.wins}</div>
+                      <div className="col-span-2 text-center text-muted-foreground">{stats.goal_difference}</div>
+                      <div className="col-span-1 text-center text-muted-foreground">{stats.goals_for}</div>
+                    </div>
+                  );
+                })}
+              </div>
             </CardContent>
           </Card>
         );
