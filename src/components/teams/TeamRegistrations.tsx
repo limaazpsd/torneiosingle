@@ -2,15 +2,17 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Trophy, Calendar, MapPin } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Trophy, Calendar, MapPin, CreditCard } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 
 interface TeamRegistrationsProps {
   teamId: string;
 }
 
 export const TeamRegistrations = ({ teamId }: TeamRegistrationsProps) => {
+  const navigate = useNavigate();
   const { data: registrations, isLoading } = useQuery({
     queryKey: ['team-registrations', teamId],
     queryFn: async () => {
@@ -123,7 +125,7 @@ export const TeamRegistrations = ({ teamId }: TeamRegistrationsProps) => {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between flex-wrap gap-4">
               <div>
                 <p className="text-sm text-muted-foreground mb-1">Taxa de Inscrição</p>
                 <p className="text-lg font-semibold">
@@ -133,13 +135,26 @@ export const TeamRegistrations = ({ teamId }: TeamRegistrationsProps) => {
                   }
                 </p>
               </div>
-              {reg.tournament?.slug && (
-                <Link to={`/torneio/${reg.tournament.slug}`}>
-                  <Badge variant="outline" className="cursor-pointer hover:bg-primary/10">
-                    Ver Torneio
-                  </Badge>
-                </Link>
-              )}
+              <div className="flex gap-2">
+                {reg.payment_status === 'pending' && reg.tournament?.entry_fee > 0 && (
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={() => navigate(`/regularizar-inscricao/${reg.id}`)}
+                    className="flex items-center gap-2"
+                  >
+                    <CreditCard className="h-4 w-4" />
+                    Regularizar Inscrição
+                  </Button>
+                )}
+                {reg.tournament?.slug && (
+                  <Link to={`/torneio/${reg.tournament.slug}`}>
+                    <Badge variant="outline" className="cursor-pointer hover:bg-primary/10">
+                      Ver Torneio
+                    </Badge>
+                  </Link>
+                )}
+              </div>
             </div>
           </CardContent>
         </Card>

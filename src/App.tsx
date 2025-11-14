@@ -13,6 +13,7 @@ import PublicTournament from "./pages/PublicTournament";
 import Tournaments from "./pages/Tournaments";
 import CreateIndependentTeam from "./pages/CreateIndependentTeam";
 import TeamManagement from "./pages/TeamManagement";
+import RegularizePayment from "./pages/RegularizePayment";
 import Demo from "./pages/Demo";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
@@ -67,6 +68,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <TeamManagement />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/regularizar-inscricao/:teamId" 
+              element={
+                <ProtectedRoute>
+                  <RegularizePayment />
                 </ProtectedRoute>
               } 
             />
