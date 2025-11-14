@@ -161,7 +161,7 @@ export const useTournament = (id: string | undefined) => {
 
       const { data, error } = await (supabase as any)
         .from('tournaments')
-        .select('*, teams(*, profiles(name))')
+        .select('*, teams(*)')
         .eq('id', id)
         .single();
 
@@ -182,7 +182,7 @@ export const useTournamentBySlug = (slug: string | undefined) => {
 
       const { data, error } = await (supabase as any)
         .from('tournaments')
-        .select('*, teams(*, profiles(name))')
+        .select('*, teams(*)')
         .eq('slug', slug)
         .maybeSingle();
 
