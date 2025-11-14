@@ -14,6 +14,7 @@ import Tournaments from "./pages/Tournaments";
 import CreateIndependentTeam from "./pages/CreateIndependentTeam";
 import TeamManagement from "./pages/TeamManagement";
 import Demo from "./pages/Demo";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -70,6 +71,14 @@ const App = () => (
               } 
             />
             <Route path="/demo" element={<Demo />} />
+            <Route 
+              path="/profile" 
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              } 
+            />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

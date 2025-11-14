@@ -267,33 +267,39 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          birth_date: string | null
           created_at: string
           document_number: string | null
           document_type: string | null
           id: string
           name: string
+          phone: string | null
           updated_at: string
           user_id: string
           username: string | null
         }
         Insert: {
           avatar_url?: string | null
+          birth_date?: string | null
           created_at?: string
           document_number?: string | null
           document_type?: string | null
           id?: string
           name: string
+          phone?: string | null
           updated_at?: string
           user_id: string
           username?: string | null
         }
         Update: {
           avatar_url?: string | null
+          birth_date?: string | null
           created_at?: string
           document_number?: string | null
           document_type?: string | null
           id?: string
           name?: string
+          phone?: string | null
           updated_at?: string
           user_id?: string
           username?: string | null
@@ -480,6 +486,7 @@ export type Database = {
           registration_deadline: string
           rules: string
           second_place_percentage: number
+          slug: string | null
           sport: string
           start_date: string
           status: string
@@ -503,6 +510,7 @@ export type Database = {
           registration_deadline: string
           rules: string
           second_place_percentage: number
+          slug?: string | null
           sport: string
           start_date: string
           status?: string
@@ -526,6 +534,7 @@ export type Database = {
           registration_deadline?: string
           rules?: string
           second_place_percentage?: number
+          slug?: string | null
           sport?: string
           start_date?: string
           status?: string
@@ -554,6 +563,7 @@ export type Database = {
         }
         Returns: string
       }
+      generate_slug: { Args: { name: string }; Returns: string }
       is_team_captain: {
         Args: { _team_id: string; _user_id: string }
         Returns: boolean

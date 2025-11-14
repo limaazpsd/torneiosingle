@@ -13,10 +13,11 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const tournamentSchema = z.object({
   name: z.string().min(3, "Nome deve ter pelo menos 3 caracteres").max(100, "Nome muito longo"),
+  slug: z.string().optional(),
   sport: z.string().min(1, "Selecione um esporte"),
   format: z.string().min(1, "Selecione um formato"),
   start_date: z.string().min(1, "Data de início é obrigatória"),
@@ -60,6 +61,7 @@ const CreateTournament = () => {
     resolver: zodResolver(tournamentSchema),
     defaultValues: {
       name: "",
+      slug: "",
       sport: "",
       format: "",
       start_date: "",
@@ -76,6 +78,26 @@ const CreateTournament = () => {
       logo_url: "",
     },
   });
+
+  // Generate slug from name
+  const generateSlug = (name: string) => {
+    return name
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-');
+  };
+
+  // Watch name changes to auto-generate slug
+  const watchName = form.watch("name");
+  
+  useEffect(() => {
+    if (watchName) {
+      const slug = generateSlug(watchName);
+      form.setValue("slug", slug);
+    }
+  }, [watchName]);
 
   const [logoFile, setLogoFile] = useState<File | null>(null);
 
@@ -200,6 +222,23 @@ const CreateTournament = () => {
                           <FormLabel>Nome do Torneio</FormLabel>
                           <FormControl>
                             <Input placeholder="Ex: Copa Verão 2024" {...field} className="bg-input border-border" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="slug"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Endereço URL do Torneio</FormLabel>
+                          <FormControl>
+                            <div className="flex items-center gap-2">
+                              <span className="text-muted-foreground text-sm">/torneio/</span>
+                              <Input {...field} placeholder="copa-verao-2024" className="bg-input border-border" disabled />
+                            </div>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
