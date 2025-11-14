@@ -1,50 +1,24 @@
-import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Users, UserPlus, Crown, Trash2 } from "lucide-react";
-import {
-  useMyTeams,
-  useTeamMembers,
-  useTeamInvitations,
-  useInviteToTeam,
-} from "@/hooks/useIndependentTeams";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ArrowLeft, Users, Trophy, TrendingUp, Settings } from "lucide-react";
+import { useMyTeams, useTeamMembers, useTeamInvitations } from "@/hooks/useIndependentTeams";
+import { TeamOverview } from "@/components/teams/TeamOverview";
+import { TeamMembersList } from "@/components/teams/TeamMembersList";
+import { TeamInviteSection } from "@/components/teams/TeamInviteSection";
+import { TeamRegistrations } from "@/components/teams/TeamRegistrations";
 
 const TeamManagement = () => {
   const navigate = useNavigate();
   const { teamId } = useParams();
-  const [usernameInput, setUsernameInput] = useState("");
 
   const { data: myTeams } = useMyTeams();
   const { data: members, isLoading: membersLoading } = useTeamMembers(teamId);
   const { data: invitations } = useTeamInvitations(teamId);
-  const inviteToTeam = useInviteToTeam();
 
   const team = myTeams?.find((t) => t.id === teamId);
   const isCapitain = team?.user_role === "captain";
-
-  const handleInvite = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!teamId || !usernameInput.trim()) return;
-
-    const username = usernameInput.startsWith("@")
-      ? usernameInput
-      : `@${usernameInput}`;
-
-    inviteToTeam.mutate(
-      { teamId, username },
-      {
-        onSuccess: () => {
-          setUsernameInput("");
-        },
-      }
-    );
-  };
 
   if (!team) {
     return (
@@ -89,141 +63,79 @@ const TeamManagement = () => {
         </div>
       </nav>
 
-      <div className="container mx-auto px-6 md:px-8 lg:px-12 py-8 max-w-4xl">
-        <div className="grid gap-6">
-          {/* Team Info */}
-          <Card className="bg-card/50 border-primary/20">
-            <CardHeader>
-              <CardTitle>Informações da Equipe</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label className="text-muted-foreground">Nome</Label>
-                <p className="text-lg font-semibold">{team.name}</p>
-              </div>
-              {team.description && (
-                <div>
-                  <Label className="text-muted-foreground">Descrição</Label>
-                  <p>{team.description}</p>
-                </div>
-              )}
-              <div>
-                <Label className="text-muted-foreground">Membros</Label>
-                <p className="text-lg font-semibold">{team.member_count || 0}</p>
-              </div>
-            </CardContent>
-          </Card>
+      <div className="container mx-auto px-6 md:px-8 lg:px-12 py-8 max-w-6xl">
+        <Tabs defaultValue="overview" className="w-full">
+          <TabsList className="grid w-full grid-cols-4 mb-8">
+            <TabsTrigger value="overview" className="flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              <span className="hidden sm:inline">Visão Geral</span>
+              <span className="sm:hidden">Geral</span>
+            </TabsTrigger>
+            <TabsTrigger value="registrations" className="flex items-center gap-2">
+              <Trophy className="h-4 w-4" />
+              <span className="hidden sm:inline">Inscrições</span>
+              <span className="sm:hidden">Torneios</span>
+            </TabsTrigger>
+            <TabsTrigger value="performance" className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4" />
+              <span className="hidden sm:inline">Desempenho</span>
+              <span className="sm:hidden">Stats</span>
+            </TabsTrigger>
+            {isCapitain && (
+              <TabsTrigger value="management" className="flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                <span className="hidden sm:inline">Gestão</span>
+                <span className="sm:hidden">Gestão</span>
+              </TabsTrigger>
+            )}
+          </TabsList>
 
-          {/* Invite Members (only for captain) */}
-          {isCapitain && (
-            <Card className="bg-card/50 border-cyan-500/20">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <UserPlus className="h-5 w-5" />
-                  Convidar Membros
-                </CardTitle>
-                <CardDescription>
-                  Digite o @username do usuário que deseja convidar
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleInvite} className="flex gap-2">
-                  <Input
-                    value={usernameInput}
-                    onChange={(e) => setUsernameInput(e.target.value)}
-                    placeholder="@username"
-                    className="flex-1"
-                  />
-                  <Button
-                    type="submit"
-                    variant="glow"
-                    disabled={inviteToTeam.isPending || !usernameInput.trim()}
-                  >
-                    {inviteToTeam.isPending ? "Enviando..." : "Enviar Convite"}
-                  </Button>
-                </form>
+          <TabsContent value="overview" className="space-y-6">
+            <TeamOverview 
+              team={team} 
+              membersCount={members?.length || 0}
+            />
+            <TeamMembersList 
+              members={members}
+              isLoading={membersLoading}
+            />
+          </TabsContent>
 
-                {/* Pending Invitations */}
-                {invitations && invitations.length > 0 && (
-                  <div className="mt-4 space-y-2">
-                    <Label className="text-muted-foreground">Convites Pendentes</Label>
-                    {invitations.map((inv) => (
-                      <div
-                        key={inv.id}
-                        className="flex items-center justify-between p-2 rounded-lg bg-muted/50"
-                      >
-                        <span className="text-sm">Aguardando resposta...</span>
-                        <Badge variant="outline">Pendente</Badge>
-                      </div>
-                    ))}
-                  </div>
-                )}
+          <TabsContent value="registrations" className="space-y-6">
+            <TeamRegistrations teamId={teamId!} />
+          </TabsContent>
+
+          <TabsContent value="performance" className="space-y-6">
+            <Card className="bg-card/50 border-primary/20">
+              <CardContent className="py-12 text-center">
+                <TrendingUp className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-2">Desempenho em Desenvolvimento</h3>
+                <p className="text-muted-foreground">
+                  Estatísticas detalhadas, classificação e artilharia serão exibidas aqui em breve
+                </p>
               </CardContent>
             </Card>
-          )}
+          </TabsContent>
 
-          {/* Members List */}
-          <Card className="bg-card/50 border-primary/20">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="h-5 w-5" />
-                Membros da Equipe
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {membersLoading ? (
-                <div className="space-y-3">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="flex items-center gap-3">
-                      <Skeleton className="h-10 w-10 rounded-full" />
-                      <Skeleton className="h-4 w-32" />
-                    </div>
-                  ))}
-                </div>
-              ) : members && members.length > 0 ? (
-                <div className="space-y-3">
-                  {members.map((member) => (
-                    <div
-                      key={member.id}
-                      className="flex items-center justify-between p-3 rounded-lg bg-card/30 border border-border/50"
-                    >
-                      <div className="flex items-center gap-3">
-                        <Avatar>
-                          <AvatarFallback>
-                            {member.profiles?.name?.charAt(0).toUpperCase() || "?"}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-semibold">{member.profiles?.name}</p>
-                          {member.profiles?.username && (
-                            <p className="text-sm text-muted-foreground">
-                              {member.profiles.username}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {member.role === "captain" && (
-                          <Badge variant="default" className="flex items-center gap-1">
-                            <Crown className="h-3 w-3" />
-                            Capitão
-                          </Badge>
-                        )}
-                        {member.role === "member" && (
-                          <Badge variant="outline">Membro</Badge>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-center text-muted-foreground py-8">
-                  Nenhum membro encontrado
-                </p>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+          {isCapitain && (
+            <TabsContent value="management" className="space-y-6">
+              <TeamInviteSection 
+                teamId={teamId!}
+                invitations={invitations}
+              />
+              
+              <Card className="bg-card/50 border-primary/20">
+                <CardContent className="py-12 text-center">
+                  <Settings className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">Configurações Avançadas</h3>
+                  <p className="text-muted-foreground">
+                    Opções de edição de time, remoção de membros e outras configurações em breve
+                  </p>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
+        </Tabs>
       </div>
     </div>
   );
