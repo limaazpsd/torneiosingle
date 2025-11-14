@@ -62,46 +62,42 @@ export function KnockoutBracket({ registeredTeams, teamDraws, maxParticipants }:
   const initialRound = getInitialRound();
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-center">
-        <Badge variant="outline" className="text-lg px-4 py-2">
+    <div className="space-y-8">
+      <div className="text-center">
+        <Badge className="bg-gradient-to-r from-cyan-500 to-orange-500 text-white text-base px-6 py-2 border-0">
           {initialRound}
         </Badge>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-2">
         {matchups.map((matchup, idx) => (
-          <Card key={idx}>
-            <CardHeader>
-              <CardTitle className="text-sm text-muted-foreground">
-                Confronto {idx + 1}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50 border">
+          <Card key={idx} className="bg-card/50 border-cyan-500/30 hover:border-cyan-500/50 hover:shadow-xl hover:shadow-cyan-500/20 transition-all duration-300">
+            <CardContent className="pt-6 space-y-4">
+              {/* Team 1 */}
+              <div className="flex items-center justify-between p-4 rounded-lg border bg-card/30 border-border/30 transition-all duration-300">
                 {matchup.team1 ? (
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-3 flex-1">
                     {matchup.team1.emoji && (
-                      <span className="text-xl">{matchup.team1.emoji}</span>
+                      <span className="text-3xl">{matchup.team1.emoji}</span>
                     )}
-                    <span className="font-medium">{matchup.team1.name}</span>
+                    <span className="font-bold text-lg text-foreground">{matchup.team1.name}</span>
                   </div>
                 ) : (
                   <span className="text-muted-foreground italic">A DEFINIR</span>
                 )}
               </div>
 
-              <div className="text-center text-xs font-bold text-muted-foreground">
-                VS
-              </div>
+              {/* VS */}
+              <div className="text-center text-sm text-muted-foreground font-semibold">vs</div>
 
-              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50 border">
+              {/* Team 2 */}
+              <div className="flex items-center justify-between p-4 rounded-lg border bg-card/30 border-border/30 transition-all duration-300">
                 {matchup.team2 ? (
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-3 flex-1">
                     {matchup.team2.emoji && (
-                      <span className="text-xl">{matchup.team2.emoji}</span>
+                      <span className="text-3xl">{matchup.team2.emoji}</span>
                     )}
-                    <span className="font-medium">{matchup.team2.name}</span>
+                    <span className="font-bold text-lg text-foreground">{matchup.team2.name}</span>
                   </div>
                 ) : (
                   <span className="text-muted-foreground italic">A DEFINIR</span>
@@ -113,7 +109,7 @@ export function KnockoutBracket({ registeredTeams, teamDraws, maxParticipants }:
       </div>
 
       {maxParticipants > 4 && (
-        <div className="text-center text-sm text-muted-foreground">
+        <div className="text-center text-sm text-muted-foreground mt-6">
           <p>As próximas fases serão exibidas após a conclusão desta rodada</p>
         </div>
       )}

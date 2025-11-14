@@ -120,9 +120,34 @@ const TournamentManagement = () => {
         .eq("id", teamId);
       
       if (error) throw error;
+      
+      // Se aprovar o time, chamar a edge function para fazer o sorteio
+      if (status === 'approved') {
+        const { error: drawError } = await supabase.functions.invoke('draw-team', {
+          body: {
+            type: 'UPDATE',
+            table: 'teams',
+            record: {
+              id: teamId,
+              tournament_id: tournament?.id,
+              payment_status: 'approved'
+            },
+            old_record: {
+              payment_status: 'pending'
+            }
+          }
+        });
+        
+        if (drawError) {
+          console.error('Error drawing team:', drawError);
+          // Não falhar a aprovação se o sorteio falhar
+        }
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tournament-teams", tournament?.id] });
+      queryClient.invalidateQueries({ queryKey: ["tournament-draws", tournament?.id] });
+      queryClient.invalidateQueries({ queryKey: ["tournament-group-teams", tournament?.id] });
       toast.success("Status de pagamento atualizado!");
     },
     onError: () => {

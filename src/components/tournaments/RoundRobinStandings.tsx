@@ -1,12 +1,4 @@
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 
 interface Team {
   id: string;
@@ -75,70 +67,69 @@ export function RoundRobinStandings({ registeredTeams, teamStats, maxParticipant
   const placeholders = Array(emptySlots).fill(null);
 
   return (
-    <Card>
+    <Card className="bg-card/50 border-cyan-500/30 hover:border-cyan-500/60 hover:shadow-xl hover:shadow-cyan-500/20 transition-all duration-300">
       <CardContent className="pt-6">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[50px]">Pos</TableHead>
-              <TableHead>Time</TableHead>
-              <TableHead className="text-center">P</TableHead>
-              <TableHead className="text-center">J</TableHead>
-              <TableHead className="text-center">V</TableHead>
-              <TableHead className="text-center">E</TableHead>
-              <TableHead className="text-center">D</TableHead>
-              <TableHead className="text-center">GP</TableHead>
-              <TableHead className="text-center">GC</TableHead>
-              <TableHead className="text-center">SG</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {sortedTeams.map(({ team, stats }, idx) => {
-              const gamesPlayed = stats.wins + stats.draws + stats.losses;
-              
-              return (
-                <TableRow key={team.id}>
-                  <TableCell className="font-medium">{idx + 1}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      {team.emoji && <span>{team.emoji}</span>}
-                      <span className="font-medium">{team.name}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-center font-bold">
-                    {stats.points}
-                  </TableCell>
-                  <TableCell className="text-center">{gamesPlayed}</TableCell>
-                  <TableCell className="text-center">{stats.wins}</TableCell>
-                  <TableCell className="text-center">{stats.draws}</TableCell>
-                  <TableCell className="text-center">{stats.losses}</TableCell>
-                  <TableCell className="text-center">{stats.goals_for}</TableCell>
-                  <TableCell className="text-center">{stats.goals_against}</TableCell>
-                  <TableCell className="text-center">{stats.goal_difference}</TableCell>
-                </TableRow>
-              );
-            })}
+        <div className="space-y-2">
+          <div className="grid grid-cols-12 gap-2 text-xs text-muted-foreground pb-2 border-b border-border/50">
+            <div className="col-span-4">Time</div>
+            <div className="col-span-1 text-center">P</div>
+            <div className="col-span-1 text-center">J</div>
+            <div className="col-span-1 text-center">V</div>
+            <div className="col-span-1 text-center">E</div>
+            <div className="col-span-1 text-center">D</div>
+            <div className="col-span-1 text-center">GP</div>
+            <div className="col-span-1 text-center">GC</div>
+            <div className="col-span-1 text-center">SG</div>
+          </div>
+          
+          {sortedTeams.map(({ team, stats }, idx) => {
+            const gamesPlayed = stats.wins + stats.draws + stats.losses;
+            const isTop3 = idx < 3; // Top 3 highlighted
             
-            {placeholders.map((_, idx) => (
-              <TableRow key={`placeholder-${idx}`}>
-                <TableCell className="font-medium">
-                  {sortedTeams.length + idx + 1}
-                </TableCell>
-                <TableCell className="text-muted-foreground italic">
-                  A DEFINIR
-                </TableCell>
-                <TableCell className="text-center">-</TableCell>
-                <TableCell className="text-center">-</TableCell>
-                <TableCell className="text-center">-</TableCell>
-                <TableCell className="text-center">-</TableCell>
-                <TableCell className="text-center">-</TableCell>
-                <TableCell className="text-center">-</TableCell>
-                <TableCell className="text-center">-</TableCell>
-                <TableCell className="text-center">-</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            return (
+              <div
+                key={team.id}
+                className={`grid grid-cols-12 gap-2 items-center p-3 rounded-lg border transition-all duration-300 ${
+                  isTop3
+                    ? "bg-cyan-500/10 border-cyan-500/30 hover:border-cyan-500/50 hover:shadow-md hover:shadow-cyan-500/10"
+                    : "bg-card/30 border-border/30 hover:border-border/50"
+                }`}
+              >
+                <div className="col-span-4 flex items-center gap-2">
+                  <span className="text-muted-foreground font-medium">{idx + 1}.</span>
+                  {team.emoji && <span className="text-2xl">{team.emoji}</span>}
+                  <span className="font-semibold text-foreground">{team.name}</span>
+                </div>
+                <div className="col-span-1 text-center font-bold text-foreground">{stats.points}</div>
+                <div className="col-span-1 text-center text-muted-foreground">{gamesPlayed}</div>
+                <div className="col-span-1 text-center text-muted-foreground">{stats.wins}</div>
+                <div className="col-span-1 text-center text-muted-foreground">{stats.draws}</div>
+                <div className="col-span-1 text-center text-muted-foreground">{stats.losses}</div>
+                <div className="col-span-1 text-center text-muted-foreground">{stats.goals_for}</div>
+                <div className="col-span-1 text-center text-muted-foreground">{stats.goals_against}</div>
+                <div className="col-span-1 text-center text-muted-foreground">{stats.goal_difference}</div>
+              </div>
+            );
+          })}
+
+          {/* Placeholders para times que ainda não se inscreveram */}
+          {placeholders.map((_, idx) => (
+            <div key={`placeholder-${idx}`} className="grid grid-cols-12 gap-2 items-center p-3 rounded-lg border bg-card/30 border-border/30">
+              <div className="col-span-4 flex items-center gap-2">
+                <span className="text-muted-foreground font-medium">{sortedTeams.length + idx + 1}.</span>
+                <span className="text-muted-foreground italic">A DEFINIR</span>
+              </div>
+              <div className="col-span-1 text-center text-muted-foreground">-</div>
+              <div className="col-span-1 text-center text-muted-foreground">-</div>
+              <div className="col-span-1 text-center text-muted-foreground">-</div>
+              <div className="col-span-1 text-center text-muted-foreground">-</div>
+              <div className="col-span-1 text-center text-muted-foreground">-</div>
+              <div className="col-span-1 text-center text-muted-foreground">-</div>
+              <div className="col-span-1 text-center text-muted-foreground">-</div>
+              <div className="col-span-1 text-center text-muted-foreground">-</div>
+            </div>
+          ))}
+        </div>
       </CardContent>
     </Card>
   );
