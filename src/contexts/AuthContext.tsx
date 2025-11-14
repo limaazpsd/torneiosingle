@@ -54,7 +54,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       toast.success("Login realizado com sucesso!");
-      navigate("/dashboard");
+      navigate("/painel");
       return { error: null };
     } catch (error) {
       toast.error("Erro ao fazer login");
@@ -85,7 +85,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       toast.success("Conta criada com sucesso!");
-      navigate("/dashboard");
+      navigate("/painel");
       return { error: null };
     } catch (error) {
       toast.error("Erro ao criar conta");

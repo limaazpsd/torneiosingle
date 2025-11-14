@@ -249,7 +249,7 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       <div className="container mx-auto px-6 md:px-8 lg:px-12 py-8">
-        <Link to="/dashboard">
+        <Link to="/painel">
           <Button variant="ghost" className="mb-6">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Voltar ao Dashboard

@@ -307,7 +307,7 @@ const PublicTournament = () => {
         <div className="text-center">
           <Trophy className="h-20 w-20 text-muted-foreground mx-auto mb-4" />
           <h2 className="text-2xl font-bold mb-2">Torneio não encontrado</h2>
-          <Link to="/tournaments">
+          <Link to="/torneios">
             <Button variant="hero">Explorar Torneios</Button>
           </Link>
         </div>
@@ -399,7 +399,7 @@ const PublicTournament = () => {
                         </div>
                         <Button
                           variant="hero"
-                          onClick={() => navigate('/create-team')}
+                          onClick={() => navigate('/criar-time')}
                         >
                           Criar Meu Primeiro Time
                         </Button>
@@ -421,7 +421,7 @@ const PublicTournament = () => {
                             <div className="flex justify-between items-center pt-4">
                               <Button
                                 variant="outline"
-                                onClick={() => navigate('/create-team')}
+                                onClick={() => navigate('/criar-time')}
                               >
                                 Criar Novo Time
                               </Button>

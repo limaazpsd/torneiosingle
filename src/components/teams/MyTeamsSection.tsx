@@ -96,7 +96,7 @@ const MyTeamsSection = () => {
                 <Card
                   key={team.id}
                   className="bg-card/30 border-border/50 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 cursor-pointer"
-                  onClick={() => navigate(`/team/${team.id}`)}
+                  onClick={() => navigate(`/time/${team.id}`)}
                 >
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
@@ -134,7 +134,7 @@ const MyTeamsSection = () => {
                         size="sm"
                         onClick={(e) => {
                           e.stopPropagation();
-                          navigate(`/team/${team.id}`);
+                          navigate(`/time/${team.id}`);
                         }}
                       >
                         Gerenciar

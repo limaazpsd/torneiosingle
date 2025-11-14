@@ -22,7 +22,7 @@ import { PreviewStandings } from "@/components/tournaments/PreviewStandings";
 import { PreviewMatches } from "@/components/tournaments/PreviewMatches";
 
 const TournamentManagement = () => {
-  const { id } = useParams();
+  const { slug } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -30,12 +30,12 @@ const TournamentManagement = () => {
 
   // Fetch tournament details
   const { data: tournament, isLoading: tournamentLoading } = useQuery<Tournament>({
-    queryKey: ["tournament", id],
+    queryKey: ["tournament-by-slug", slug],
     queryFn: async () => {
       const { data, error } = await (supabase as any)
         .from("tournaments")
         .select("*")
-        .eq("id", id)
+        .eq("slug", slug)
         .single();
       
       if (error) throw error;
@@ -43,18 +43,18 @@ const TournamentManagement = () => {
       // Check if user is the creator
       if (data?.creator_id !== user?.id) {
         toast.error("Você não tem permissão para gerenciar este torneio");
-        navigate("/dashboard");
+        navigate("/painel");
         throw new Error("Unauthorized");
       }
       
       return data as Tournament;
     },
-    enabled: !!id && !!user,
+    enabled: !!slug && !!user,
   });
 
   // Fetch registered teams
   const { data: teams, isLoading: teamsLoading } = useQuery<Team[]>({
-    queryKey: ["tournament-teams", id],
+    queryKey: ["tournament-teams", tournament?.id],
     queryFn: async () => {
       const { data, error } = await (supabase as any)
         .from("teams")
@@ -62,18 +62,18 @@ const TournamentManagement = () => {
           *,
           profiles!teams_captain_id_fkey(name)
         `)
-        .eq("tournament_id", id)
+        .eq("tournament_id", tournament?.id)
         .order("created_at", { ascending: false });
       
       if (error) throw error;
       return data as Team[];
     },
-    enabled: !!id,
+    enabled: !!tournament?.id,
   });
 
   // Fetch matches
   const { data: matches = [] } = useQuery({
-    queryKey: ["tournament-matches", id],
+    queryKey: ["tournament-matches", tournament?.id],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('matches')
@@ -82,12 +82,12 @@ const TournamentManagement = () => {
           home_team:teams!matches_home_team_id_fkey(name, emoji, logo_url),
           away_team:teams!matches_away_team_id_fkey(name, emoji, logo_url)
         `)
-        .eq('tournament_id', id)
+        .eq('tournament_id', tournament?.id)
         .order('match_date');
       if (error) throw error;
       return data || [];
     },
-    enabled: !!id,
+    enabled: !!tournament?.id,
   });
 
   // Update tournament mutation
@@ -96,12 +96,12 @@ const TournamentManagement = () => {
       const { error } = await (supabase as any)
         .from("tournaments")
         .update(updates)
-        .eq("id", id);
+        .eq("id", tournament?.id);
       
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tournament", id] });
+      queryClient.invalidateQueries({ queryKey: ["tournament-by-slug", slug] });
       toast.success("Torneio atualizado com sucesso!");
     },
     onError: () => {
@@ -120,7 +120,7 @@ const TournamentManagement = () => {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tournament-teams", id] });
+      queryClient.invalidateQueries({ queryKey: ["tournament-teams", tournament?.id] });
       toast.success("Status de pagamento atualizado!");
     },
     onError: () => {
@@ -134,13 +134,13 @@ const TournamentManagement = () => {
       const { error } = await (supabase as any)
         .from("tournaments")
         .delete()
-        .eq("id", id);
+        .eq("id", tournament?.id);
       
       if (error) throw error;
     },
     onSuccess: () => {
       toast.success("Torneio deletado com sucesso!");
-      navigate("/dashboard");
+      navigate("/painel");
     },
     onError: () => {
       toast.error("Erro ao deletar torneio");
@@ -215,7 +215,7 @@ const TournamentManagement = () => {
       <nav className="border-b border-border bg-card/50 backdrop-blur-sm">
         <div className="container mx-auto px-6 md:px-8 lg:px-12 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="sm" onClick={() => navigate("/dashboard")}>
+            <Button variant="ghost" size="sm" onClick={() => navigate("/painel")}>
               <ArrowLeft className="h-4 w-4 mr-2" />
               Voltar
             </Button>
@@ -224,7 +224,7 @@ const TournamentManagement = () => {
               <span className="text-xl font-bold">{tournament.name}</span>
             </div>
           </div>
-          <Link to={`/tournament/${tournament.slug}`}>
+          <Link to={`/torneio/${tournament.slug}`}>
             <Button variant="outline" size="sm">Ver Página Pública</Button>
           </Link>
         </div>
@@ -444,7 +444,7 @@ const TournamentManagement = () => {
           <TabsContent value="matches">
             {teams && teams.length > 0 ? (
               matches && matches.length > 0 ? (
-                <MatchManagement tournamentId={id!} matches={matches as any} teams={teams as any || []} />
+                <MatchManagement tournamentId={tournament?.id!} matches={matches as any} teams={teams as any || []} />
               ) : (
                 <PreviewMatches 
                   teamsCount={teams.length}
