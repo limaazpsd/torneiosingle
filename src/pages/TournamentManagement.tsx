@@ -224,7 +224,7 @@ const TournamentManagement = () => {
               <span className="text-xl font-bold">{tournament.name}</span>
             </div>
           </div>
-          <Link to={`/tournament/${id}`}>
+          <Link to={`/tournament/${tournament.slug}`}>
             <Button variant="outline" size="sm">Ver Página Pública</Button>
           </Link>
         </div>

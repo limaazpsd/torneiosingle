@@ -18,6 +18,7 @@ export interface Tournament {
   rules: string;
   creator_id: string;
   is_public: boolean;
+  slug: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -63,6 +64,7 @@ export interface TournamentWithStats extends Tournament {
   teams_count: number;
   revenue: number;
   teams?: Team[];
+  slug: string | null;
 }
 
 export interface IndependentTeam {

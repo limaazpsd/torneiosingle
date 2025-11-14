@@ -121,7 +121,7 @@ const Tournaments = () => {
                 <Card
                   key={tournament.id}
                   className="bg-card/50 border-primary/20 hover:border-primary/50 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 cursor-pointer"
-                  onClick={() => navigate(`/tournament/${tournament.id}`)}
+                  onClick={() => navigate(`/tournament/${tournament.slug}`)}
                 >
                   <CardContent className="p-6">
                     <div className="flex gap-4">
