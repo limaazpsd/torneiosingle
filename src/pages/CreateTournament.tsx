@@ -14,11 +14,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 const tournamentSchema = z.object({
   name: z.string().min(3, "Nome deve ter pelo menos 3 caracteres").max(100, "Nome muito longo"),
   slug: z.string().optional(),
-  sport: z.string().min(1, "Selecione um esporte"),
+  sport: z.string().min(1, "Selecione uma modalidade"),
   format: z.string().min(1, "Selecione um formato"),
   start_date: z.string().min(1, "Data de início é obrigatória"),
   end_date: z.string().min(1, "Data de término é obrigatória"),
@@ -56,6 +57,13 @@ const CreateTournament = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [sportCategory, setSportCategory] = useState<string>("");
+
+  const sportSubcategories: Record<string, string[]> = {
+    "Futebol": ["Futsal", "Fut7", "Futebol"],
+    "Vôlei": ["Vôlei de Quadra", "Vôlei de Areia", "FutVôlei"],
+    "Luta": ["Karatê", "Taekwondo", "Kickboxing", "Boxe", "MMA", "Judô", "Hapkido", "Muay Thai", "Jiu Jitsu"]
+  };
 
   const form = useForm<TournamentFormValues>({
     resolver: zodResolver(tournamentSchema),
@@ -100,6 +108,12 @@ const CreateTournament = () => {
   }, [watchName]);
 
   const [logoFile, setLogoFile] = useState<File | null>(null);
+
+  // Reset sport when category changes
+  const handleCategoryChange = (category: string) => {
+    setSportCategory(category);
+    form.setValue("sport", "");
+  };
 
   const handleLogoUpload = async () => {
     if (!logoFile || !user) return null;
@@ -273,33 +287,60 @@ const CreateTournament = () => {
                       )}
                     />
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="sport"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Esporte</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl>
-                                <SelectTrigger className="bg-input border-border">
-                                  <SelectValue placeholder="Selecione o esporte" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="Futsal">Futsal</SelectItem>
-                                <SelectItem value="Futebol">Futebol</SelectItem>
-                                <SelectItem value="Basquete">Basquete</SelectItem>
-                                <SelectItem value="Vôlei">Vôlei</SelectItem>
-                                <SelectItem value="Luta">Luta</SelectItem>
-                                <SelectItem value="E-Sports">E-Sports</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                    {/* Sport Category Selection */}
+                    <div className="space-y-4">
+                      <div>
+                        <Label className="text-base font-semibold">Modalidade Principal</Label>
+                        <p className="text-sm text-muted-foreground mb-3">Selecione a categoria do seu torneio</p>
+                        <RadioGroup value={sportCategory} onValueChange={handleCategoryChange} className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          {Object.keys(sportSubcategories).map((category) => (
+                            <div key={category} className="relative">
+                              <RadioGroupItem
+                                value={category}
+                                id={category}
+                                className="peer sr-only"
+                              />
+                              <Label
+                                htmlFor={category}
+                                className="flex items-center justify-center rounded-lg border-2 border-border bg-card/50 px-6 py-4 cursor-pointer transition-all hover:bg-accent/50 peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/10 peer-data-[state=checked]:shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)]"
+                              >
+                                <span className="text-base font-medium">{category}</span>
+                              </Label>
+                            </div>
+                          ))}
+                        </RadioGroup>
+                      </div>
 
+                      {/* Sport Subcategory Selection - Only shows after category selection */}
+                      {sportCategory && (
+                        <FormField
+                          control={form.control}
+                          name="sport"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-base font-semibold">Especificação da Modalidade</FormLabel>
+                              <Select onValueChange={field.onChange} value={field.value}>
+                                <FormControl>
+                                  <SelectTrigger className="bg-input border-border">
+                                    <SelectValue placeholder="Selecione a modalidade específica" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {sportSubcategories[sportCategory].map((subcategory) => (
+                                    <SelectItem key={subcategory} value={subcategory}>
+                                      {subcategory}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-4">
                       <FormField
                         control={form.control}
                         name="format"
