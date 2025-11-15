@@ -187,6 +187,58 @@ export type Database = {
         }
         Relationships: []
       }
+      match_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          match_id: string
+          minute: number | null
+          player_id: string
+          team_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          match_id: string
+          minute?: number | null
+          player_id: string
+          team_id: string
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          match_id?: string
+          minute?: number | null
+          player_id?: string
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "match_events_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "matches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "match_events_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "match_events_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       matches: {
         Row: {
           away_score: number | null
@@ -257,6 +309,73 @@ export type Database = {
           },
           {
             foreignKeyName: "matches_tournament_id_fkey"
+            columns: ["tournament_id"]
+            isOneToOne: false
+            referencedRelation: "tournaments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      player_statistics: {
+        Row: {
+          assists: number
+          created_at: string
+          goals: number
+          id: string
+          is_suspended: boolean
+          player_id: string
+          red_cards: number
+          suspension_matches_remaining: number
+          team_id: string
+          tournament_id: string
+          updated_at: string
+          yellow_cards: number
+        }
+        Insert: {
+          assists?: number
+          created_at?: string
+          goals?: number
+          id?: string
+          is_suspended?: boolean
+          player_id: string
+          red_cards?: number
+          suspension_matches_remaining?: number
+          team_id: string
+          tournament_id: string
+          updated_at?: string
+          yellow_cards?: number
+        }
+        Update: {
+          assists?: number
+          created_at?: string
+          goals?: number
+          id?: string
+          is_suspended?: boolean
+          player_id?: string
+          red_cards?: number
+          suspension_matches_remaining?: number
+          team_id?: string
+          tournament_id?: string
+          updated_at?: string
+          yellow_cards?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "player_statistics_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "player_statistics_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "player_statistics_tournament_id_fkey"
             columns: ["tournament_id"]
             isOneToOne: false
             referencedRelation: "tournaments"

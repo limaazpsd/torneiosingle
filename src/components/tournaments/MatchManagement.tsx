@@ -9,6 +9,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Plus, Trash2, Trophy } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { MatchEventManager } from "./MatchEventManager";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface Team {
   id: string;
@@ -118,8 +120,14 @@ export const MatchManagement = ({ tournamentId, matches, teams }: MatchManagemen
 
       if (error) throw error;
 
+      // Process suspensions after match completion
+      await supabase.functions.invoke('process-suspensions', {
+        body: { matchId: selectedMatch.id, tournamentId }
+      });
+
       toast.success('Placar atualizado com sucesso!');
       queryClient.invalidateQueries({ queryKey: ['tournament-matches'] });
+      queryClient.invalidateQueries({ queryKey: ['player-statistics'] });
       setSelectedMatch(null);
     } catch (error: any) {
       toast.error('Erro ao atualizar placar: ' + error.message);
@@ -204,60 +212,78 @@ export const MatchManagement = ({ tournamentId, matches, teams }: MatchManagemen
                   </DialogHeader>
 
                   {selectedMatch && (
-                    <div className="space-y-6">
-                      {/* Placar */}
-                      <div className="grid grid-cols-2 gap-4">
+                    <Tabs defaultValue="score" className="w-full">
+                      <TabsList className="grid w-full grid-cols-2">
+                        <TabsTrigger value="score">Placar</TabsTrigger>
+                        <TabsTrigger value="events">Estatísticas</TabsTrigger>
+                      </TabsList>
+                      
+                      <TabsContent value="score" className="space-y-6">
+                        {/* Placar */}
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <Label>{match.home_team.name}</Label>
+                            <Input
+                              type="number"
+                              min="0"
+                              value={homeScore}
+                              onChange={(e) => setHomeScore(parseInt(e.target.value) || 0)}
+                            />
+                          </div>
+                          <div>
+                            <Label>{match.away_team.name}</Label>
+                            <Input
+                              type="number"
+                              min="0"
+                              value={awayScore}
+                              onChange={(e) => setAwayScore(parseInt(e.target.value) || 0)}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Gols Atribuídos */}
                         <div>
-                          <Label>{match.home_team.name}</Label>
-                          <Input
-                            type="number"
-                            min="0"
-                            value={homeScore}
-                            onChange={(e) => setHomeScore(parseInt(e.target.value) || 0)}
+                          <Label>Gols Atribuídos ({goals.length} gols)</Label>
+                          <div className="mt-2 space-y-2 max-h-40 overflow-y-auto">
+                            {goals.map((goal) => (
+                              <div key={goal.id} className="flex items-center justify-between bg-muted p-2 rounded">
+                                <span className="text-sm">
+                                  {goal.profiles?.name || 'Jogador'} ({goal.teams?.name || 'Time'}) {goal.minute ? `- ${goal.minute}'` : ''}
+                                </span>
+                                <Button variant="ghost" size="sm" onClick={() => handleRemoveGoal(goal.id)}>
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Adicionar Gol */}
+                        <div className="border-t pt-4">
+                          <Label>Adicionar Gol</Label>
+                          <GoalForm
+                            homeTeam={{ id: match.home_team_id, name: match.home_team.name, players: homeTeamPlayers }}
+                            awayTeam={{ id: match.away_team_id, name: match.away_team.name, players: awayTeamPlayers }}
+                            onAddGoal={handleAddGoal}
                           />
                         </div>
-                        <div>
-                          <Label>{match.away_team.name}</Label>
-                          <Input
-                            type="number"
-                            min="0"
-                            value={awayScore}
-                            onChange={(e) => setAwayScore(parseInt(e.target.value) || 0)}
-                          />
-                        </div>
-                      </div>
 
-                      {/* Gols Atribuídos */}
-                      <div>
-                        <Label>Gols Atribuídos ({goals.length} gols)</Label>
-                        <div className="mt-2 space-y-2 max-h-40 overflow-y-auto">
-                          {goals.map((goal) => (
-                            <div key={goal.id} className="flex items-center justify-between bg-muted p-2 rounded">
-                              <span className="text-sm">
-                                {goal.profiles?.name || 'Jogador'} ({goal.teams?.name || 'Time'}) {goal.minute ? `- ${goal.minute}'` : ''}
-                              </span>
-                              <Button variant="ghost" size="sm" onClick={() => handleRemoveGoal(goal.id)}>
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Adicionar Gol */}
-                      <div className="border-t pt-4">
-                        <Label>Adicionar Gol</Label>
-                        <GoalForm
-                          homeTeam={{ id: match.home_team_id, name: match.home_team.name, players: homeTeamPlayers }}
-                          awayTeam={{ id: match.away_team_id, name: match.away_team.name, players: awayTeamPlayers }}
-                          onAddGoal={handleAddGoal}
+                        <Button onClick={handleSaveScore} className="w-full">
+                          Salvar Placar
+                        </Button>
+                      </TabsContent>
+                      
+                      <TabsContent value="events" className="space-y-4">
+                        <MatchEventManager
+                          matchId={match.id}
+                          homeTeamId={match.home_team_id}
+                          awayTeamId={match.away_team_id}
+                          homeTeamName={match.home_team.name}
+                          awayTeamName={match.away_team.name}
+                          tournamentId={tournamentId}
                         />
-                      </div>
-
-                      <Button onClick={handleSaveScore} className="w-full">
-                        Salvar Placar
-                      </Button>
-                    </div>
+                      </TabsContent>
+                    </Tabs>
                   )}
                 </DialogContent>
               </Dialog>
