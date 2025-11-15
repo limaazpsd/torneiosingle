@@ -23,6 +23,8 @@ import { PreviewStandings } from "@/components/tournaments/PreviewStandings";
 import { PreviewMatches } from "@/components/tournaments/PreviewMatches";
 import { PopulateDrawsButton } from "@/components/tournaments/PopulateDrawsButton";
 import { CreateGroupsButton } from "@/components/tournaments/CreateGroupsButton";
+import { RandomDrawButton } from "@/components/tournaments/RandomDrawButton";
+import { MatchSchedule } from "@/components/tournaments/MatchSchedule";
 
 const TournamentManagement = () => {
   const { slug } = useParams();
@@ -336,24 +338,28 @@ const TournamentManagement = () => {
             </div>
 
             {/* Botão de Sorteio e Criação de Grupos */}
-            {(tournament.format === 'groups-knockout' || 
-              tournament.format === 'groups-only' || 
-              tournament.format === 'knockout') && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Gerenciar Estrutura do Torneio</CardTitle>
-                  <CardDescription>
-                    Configure grupos e realize o sorteio dos times para distribuí-los automaticamente.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="flex gap-2">
-                  {(tournament.format === 'groups-knockout' || tournament.format === 'groups-only') && (
-                    <CreateGroupsButton tournamentId={tournament.id} />
-                  )}
+            <Card>
+              <CardHeader>
+                <CardTitle>Gerenciar Estrutura do Torneio</CardTitle>
+                <CardDescription>
+                  Configure grupos, realize o sorteio dos times e sorteie os confrontos aleatórios.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="flex flex-wrap gap-2">
+                {(tournament.format === 'groups-knockout' || tournament.format === 'groups-only') && (
+                  <CreateGroupsButton tournamentId={tournament.id} />
+                )}
+                {(tournament.format === 'groups-knockout' || 
+                  tournament.format === 'groups-only' || 
+                  tournament.format === 'knockout') && (
                   <PopulateDrawsButton tournamentId={tournament.id} />
-                </CardContent>
-              </Card>
-            )}
+                )}
+                <RandomDrawButton 
+                  tournamentId={tournament.id} 
+                  location={tournament.location} 
+                />
+              </CardContent>
+            </Card>
 
             <Card>
               <CardHeader>
@@ -505,33 +511,11 @@ const TournamentManagement = () => {
 
           {/* Matches Tab */}
           <TabsContent value="matches" className="space-y-6">
-            {teams && teams.length > 0 ? (
-              <>
-                {/* Match Scheduler */}
-                <MatchScheduler 
-                  tournamentId={tournament?.id!}
-                  teams={teams as any || []}
-                  groups={groups || []}
-                  location={tournament.location}
-                  format={tournament.format}
-                />
-                
-                {/* Existing Matches */}
-                {matches && matches.length > 0 && (
-                  <MatchManagement tournamentId={tournament?.id!} matches={matches as any} teams={teams as any || []} />
-                )}
-              </>
-            ) : (
-              <Card>
-                <CardContent className="py-12 text-center">
-                  <Trophy className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">Aguardando inscrições</h3>
-                  <p className="text-muted-foreground">
-                    A pré-visualização das partidas aparecerá quando times se inscreverem
-                  </p>
-                </CardContent>
-              </Card>
-            )}
+            <MatchSchedule 
+              tournamentId={tournament?.id!}
+              matches={matches as any}
+              defaultLocation={tournament.location}
+            />
           </TabsContent>
 
             {/* Settings Tab */}
