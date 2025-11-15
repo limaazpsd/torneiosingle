@@ -19,7 +19,7 @@ import { IndependentTeam } from "@/types/database";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { TournamentStandings } from "@/components/tournaments/TournamentStandings";
 import { MatchesList } from "@/components/tournaments/MatchesList";
-import { TopScorers } from "@/components/tournaments/TopScorers";
+import { TournamentScorers } from "@/components/tournaments/TournamentScorers";
 
 const PublicTournament = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -51,44 +51,6 @@ const PublicTournament = () => {
       return data as any || [];
     },
     enabled: !!tournament?.id,
-  });
-
-  // Fetch top scorers
-  const { data: topScorers = [] } = useQuery({
-    queryKey: ['tournament-scorers', tournament?.id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('goals')
-        .select(`
-          player_id,
-          profiles!goals_player_id_fkey(name, avatar_url),
-          teams!goals_team_id_fkey(name, emoji, logo_url)
-        `)
-        .in('match_id', matches.map(m => m.id));
-      
-      if (error) throw error;
-
-      // Group by player
-      const scorersMap = new Map();
-      (data || []).forEach((goal: any) => {
-        const playerId = goal.player_id;
-        if (!scorersMap.has(playerId)) {
-          scorersMap.set(playerId, {
-            player_id: playerId,
-            player_name: goal.profiles?.name || 'Jogador',
-            avatar_url: goal.profiles?.avatar_url,
-            team_name: goal.teams?.name || 'Time',
-            team_emoji: goal.teams?.emoji,
-            team_logo_url: goal.teams?.logo_url,
-            goals_count: 0,
-          });
-        }
-        scorersMap.get(playerId).goals_count++;
-      });
-
-      return Array.from(scorersMap.values()).sort((a, b) => b.goals_count - a.goals_count);
-    },
-    enabled: !!tournament?.id && matches.length > 0,
   });
 
   const handleSelectTeam = (team: IndependentTeam & { members_count: number }) => {
@@ -499,7 +461,7 @@ const PublicTournament = () => {
 
             {/* Scorers Tab */}
             <TabsContent value="scorers">
-              <TopScorers scorers={topScorers} />
+              {tournament && <TournamentScorers tournamentId={tournament.id} />}
             </TabsContent>
 
             {/* Teams Tab */}

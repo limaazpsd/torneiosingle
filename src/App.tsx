@@ -16,6 +16,7 @@ import TeamManagement from "./pages/TeamManagement";
 import RegularizePayment from "./pages/RegularizePayment";
 import Demo from "./pages/Demo";
 import Profile from "./pages/Profile";
+import PlayerProfile from "./pages/PlayerProfile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -88,6 +89,7 @@ const App = () => (
                 </ProtectedRoute>
               } 
             />
+            <Route path="/player/:playerId" element={<PlayerProfile />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
