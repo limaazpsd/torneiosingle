@@ -1,25 +1,81 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Trophy, Search, Calendar, MapPin, Users, DollarSign, Award } from "lucide-react";
+import { Trophy, Search, Calendar, MapPin, Users, DollarSign, Award, X } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { usePublicTournaments } from "@/hooks/useTournaments";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+
+// Sport categories and subcategories mapping
+const SPORT_CATEGORIES = {
+  futebol: {
+    label: "Futebol",
+    subcategories: ["Futsal", "Fut7", "Futebol"]
+  },
+  volei: {
+    label: "Vôlei",
+    subcategories: ["Vôlei de Quadra", "Vôlei de Areia", "FutVôlei"]
+  },
+  luta: {
+    label: "Luta",
+    subcategories: ["Karatê", "Taekwondo", "Kickboxing", "Boxe", "MMA", "Judô", "Hapikdo", "Muay Thai", "Jiu Jitsu"]
+  }
+} as const;
 
 const Tournaments = () => {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
-  const [sport, setSport] = useState<string>("");
-  const [status, setStatus] = useState<string>("");
+  const [sportCategory, setSportCategory] = useState<string>("");
+  const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
 
-  const { data: tournaments, isLoading } = usePublicTournaments({
-    sport: sport || undefined,
-    status: status || undefined,
+  // Build sport filter based on category and subcategories
+  const sportFilter = useMemo(() => {
+    if (selectedSubcategories.length > 0) {
+      return selectedSubcategories.join(",");
+    }
+    if (sportCategory) {
+      const category = SPORT_CATEGORIES[sportCategory as keyof typeof SPORT_CATEGORIES];
+      return category?.subcategories.join(",");
+    }
+    return undefined;
+  }, [sportCategory, selectedSubcategories]);
+
+  const { data: allTournaments, isLoading } = usePublicTournaments({
     search: search || undefined,
   });
+
+  // Filter tournaments based on sport category/subcategories
+  const tournaments = useMemo(() => {
+    if (!allTournaments) return [];
+    if (!sportFilter) return allTournaments;
+    
+    const sportsArray = sportFilter.split(",");
+    return allTournaments.filter(tournament => 
+      sportsArray.includes(tournament.sport)
+    );
+  }, [allTournaments, sportFilter]);
+
+  const clearFilters = () => {
+    setSearch("");
+    setSportCategory("");
+    setSelectedSubcategories([]);
+  };
+
+  const toggleSubcategory = (subcategory: string) => {
+    setSelectedSubcategories(prev => 
+      prev.includes(subcategory) 
+        ? prev.filter(s => s !== subcategory)
+        : [...prev, subcategory]
+    );
+  };
+
+  const handleCategoryChange = (value: string) => {
+    setSportCategory(value);
+    setSelectedSubcategories([]); // Clear subcategories when changing category
+  };
 
   const getStatusBadge = (tournamentStatus: string) => {
     const badges = {
@@ -59,41 +115,72 @@ const Tournaments = () => {
             </p>
 
             {/* Filters */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="relative">
+            <div className="space-y-6">
+              {/* Search Bar */}
+              <div className="relative max-w-2xl mx-auto">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Buscar torneios..."
+                  placeholder="Buscar torneio por nome..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   className="pl-10 bg-card/50 border-border"
                 />
               </div>
-              <Select value={sport} onValueChange={setSport}>
-                <SelectTrigger className="bg-card/50 border-border">
-                  <SelectValue placeholder="Todos os esportes" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos os esportes</SelectItem>
-                  <SelectItem value="Futsal">Futsal</SelectItem>
-                  <SelectItem value="Futebol">Futebol</SelectItem>
-                  <SelectItem value="Basquete">Basquete</SelectItem>
-                  <SelectItem value="Vôlei">Vôlei</SelectItem>
-                  <SelectItem value="Luta">Luta</SelectItem>
-                  <SelectItem value="E-Sports">E-Sports</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={status} onValueChange={setStatus}>
-                <SelectTrigger className="bg-card/50 border-border">
-                  <SelectValue placeholder="Todos os status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos os status</SelectItem>
-                  <SelectItem value="registration_open">Inscrições Abertas</SelectItem>
-                  <SelectItem value="in_progress">Em Andamento</SelectItem>
-                  <SelectItem value="completed">Finalizados</SelectItem>
-                </SelectContent>
-              </Select>
+
+              {/* Sport Category Selector */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-center gap-2">
+                  <span className="text-sm font-medium text-muted-foreground">Modalidade:</span>
+                  <ToggleGroup 
+                    type="single" 
+                    value={sportCategory} 
+                    onValueChange={handleCategoryChange}
+                    className="bg-card/30 p-1 rounded-lg border border-border/50"
+                  >
+                    <ToggleGroupItem value="futebol" className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">
+                      Futebol
+                    </ToggleGroupItem>
+                    <ToggleGroupItem value="volei" className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">
+                      Vôlei
+                    </ToggleGroupItem>
+                    <ToggleGroupItem value="luta" className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">
+                      Luta
+                    </ToggleGroupItem>
+                  </ToggleGroup>
+                </div>
+
+                {/* Subcategory Selector (Conditional) */}
+                {sportCategory && (
+                  <div className="flex flex-wrap items-center justify-center gap-2">
+                    <span className="text-sm font-medium text-muted-foreground">Refinar:</span>
+                    {SPORT_CATEGORIES[sportCategory as keyof typeof SPORT_CATEGORIES].subcategories.map((subcategory) => (
+                      <Badge
+                        key={subcategory}
+                        variant={selectedSubcategories.includes(subcategory) ? "default" : "outline"}
+                        className="cursor-pointer hover:bg-primary/80 transition-colors"
+                        onClick={() => toggleSubcategory(subcategory)}
+                      >
+                        {subcategory}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Clear Filters Button */}
+              {(search || sportCategory || selectedSubcategories.length > 0) && (
+                <div className="flex justify-center">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={clearFilters}
+                    className="gap-2"
+                  >
+                    <X className="h-4 w-4" />
+                    Limpar Filtros
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -198,7 +285,7 @@ const Tournaments = () => {
             <Trophy className="h-20 w-20 text-muted-foreground mx-auto mb-6" />
             <h3 className="text-2xl font-bold mb-2">Nenhum torneio encontrado</h3>
             <p className="text-muted-foreground mb-8">
-              {search || sport || status
+              {search || sportCategory || selectedSubcategories.length > 0
                 ? "Tente ajustar os filtros para encontrar torneios"
                 : "Seja o primeiro a criar um torneio!"}
             </p>
