@@ -279,7 +279,7 @@ const TournamentManagement = () => {
 
       <div className="container mx-auto px-6 md:px-8 lg:px-12 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6 max-w-4xl">
+          <TabsList className="grid w-full grid-cols-5 max-w-4xl">
             <TabsTrigger value="overview">
               <Info className="h-4 w-4 mr-2" />
               Visão Geral
@@ -287,10 +287,6 @@ const TournamentManagement = () => {
             <TabsTrigger value="approvals">
               <CheckCircle className="h-4 w-4 mr-2" />
               Aprovações
-            </TabsTrigger>
-            <TabsTrigger value="teams">
-              <Users className="h-4 w-4 mr-2" />
-              Equipes
             </TabsTrigger>
             <TabsTrigger value="standings">
               <Trophy className="h-4 w-4 mr-2" />
@@ -311,7 +307,7 @@ const TournamentManagement = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-sm font-medium text-muted-foreground">Times Inscritos</CardTitle>
+                  <CardTitle className="text-sm font-medium text-muted-foreground">Equipes Inscritas</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-3xl font-bold text-primary">
@@ -489,19 +485,14 @@ const TournamentManagement = () => {
           <TabsContent value="approvals" className="space-y-6">
             <TeamApprovalSection 
               teams={teams || []}
+              tournamentEntryFee={tournament.entry_fee}
+              tournamentId={tournament.id}
               onApprove={(teamId) => updateTeamPaymentMutation.mutate({ teamId, status: "approved" })}
               onReject={(teamId) => updateTeamPaymentMutation.mutate({ teamId, status: "rejected" })}
               isUpdating={updateTeamPaymentMutation.isPending}
             />
           </TabsContent>
           
-          {/* Teams List Tab (New) */}
-          <TabsContent value="teams" className="space-y-6">
-            {tournament && teams && (
-              <TournamentEquipesList tournament={tournament} teams={teams} />
-            )}
-          </TabsContent>
-
           {/* Standings Tab */}
           <TabsContent value="standings" className="space-y-6">
             {teams && teams.length > 0 ? (
