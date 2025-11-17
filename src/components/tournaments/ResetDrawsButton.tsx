@@ -27,30 +27,48 @@ export const ResetDrawsButton = ({ tournamentId }: ResetDrawsButtonProps) => {
   const handleResetDraws = async () => {
     setIsResetting(true);
     try {
-      // 1. Deletar dados de partidas e estatísticas (ordem de dependência)
+      // 1. Buscar IDs das partidas e grupos
+      const { data: matchesData, error: matchesFetchError } = await supabase
+        .from('matches')
+        .select('id')
+        .eq('tournament_id', tournamentId);
       
-      // Deletar match_events (depende de matches)
-      const { error: eventsError } = await supabase
-        .from('match_events')
-        .delete()
-        .in('match_id', supabase.from('matches').select('id').eq('tournament_id', tournamentId));
-      if (eventsError) throw eventsError;
+      if (matchesFetchError) throw matchesFetchError;
+      const matchIds = matchesData.map(m => m.id);
 
-      // Deletar goals (depende de matches)
-      const { error: goalsError } = await supabase
-        .from('goals')
-        .delete()
-        .in('match_id', supabase.from('matches').select('id').eq('tournament_id', tournamentId));
-      if (goalsError) throw goalsError;
+      const { data: groupsData, error: groupsFetchError } = await supabase
+        .from('groups')
+        .select('id')
+        .eq('tournament_id', tournamentId);
+      
+      if (groupsFetchError) throw groupsFetchError;
+      const groupIds = groupsData.map(g => g.id);
 
-      // Deletar matches
+      // 2. Deletar dados dependentes (eventos, gols)
+      if (matchIds.length > 0) {
+        // Deletar match_events
+        const { error: eventsError } = await supabase
+          .from('match_events')
+          .delete()
+          .in('match_id', matchIds);
+        if (eventsError) throw eventsError;
+
+        // Deletar goals
+        const { error: goalsError } = await supabase
+          .from('goals')
+          .delete()
+          .in('match_id', matchIds);
+        if (goalsError) throw goalsError;
+      }
+
+      // 3. Deletar partidas
       const { error: matchesError } = await supabase
         .from('matches')
         .delete()
         .eq('tournament_id', tournamentId);
       if (matchesError) throw matchesError;
 
-      // 2. Deletar dados de classificação e sorteio
+      // 4. Deletar dados de classificação e sorteio
       
       // Deletar player_statistics
       const { error: statsError } = await supabase
@@ -60,11 +78,13 @@ export const ResetDrawsButton = ({ tournamentId }: ResetDrawsButtonProps) => {
       if (statsError) throw statsError;
 
       // Deletar group_teams
-      const { error: groupTeamsError } = await supabase
-        .from('group_teams')
-        .delete()
-        .in('group_id', supabase.from('groups').select('id').eq('tournament_id', tournamentId));
-      if (groupTeamsError) throw groupTeamsError;
+      if (groupIds.length > 0) {
+        const { error: groupTeamsError } = await supabase
+          .from('group_teams')
+          .delete()
+          .in('group_id', groupIds);
+        if (groupTeamsError) throw groupTeamsError;
+      }
 
       // Deletar team_draws
       const { error: drawsError } = await supabase
