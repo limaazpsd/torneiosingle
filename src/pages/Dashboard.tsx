@@ -206,33 +206,37 @@ const Dashboard = () => {
             </Card>
           </div>
 
-          {/* Quick Actions & Stats */}
+          {/* Quick Actions & Teams */}
           <div className="space-y-6">
             <Card className="bg-card/50 border-cyan-500/20 hover:border-cyan-500/50 hover:shadow-lg hover:shadow-cyan-500/10 transition-all duration-300">
               <CardHeader>
                 <CardTitle>Ações Rápidas</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
-                <Link to="/create-tournament">
+                <Link to="/criar-torneio">
                   <Button variant="glow" className="w-full justify-start">
                     <Plus className="mr-2 h-4 w-4" />
                     Criar Torneio
                   </Button>
                 </Link>
-                <Link to="/create-team">
+                <Link to="/criar-time"> {/* Link corrigido */}
                   <Button variant="ghost" className="w-full justify-start text-white border border-transparent hover:border-primary hover:bg-primary/10 hover:text-white transition-all">
                     <Users className="mr-2 h-4 w-4" />
                     Criar Equipe
                   </Button>
                 </Link>
-                <Button variant="ghost" className="w-full justify-start text-white border border-transparent hover:border-primary hover:bg-primary/10 hover:text-white transition-all">
-                  <Calendar className="mr-2 h-4 w-4" />
-                  Ver Calendário
-                </Button>
-                <Button variant="ghost" className="w-full justify-start text-white border border-transparent hover:border-primary hover:bg-primary/10 hover:text-white transition-all">
-                  <TrendingUp className="mr-2 h-4 w-4" />
-                  Relatórios
-                </Button>
+                <Link to="/calendario"> {/* Novo link para o calendário */}
+                  <Button variant="ghost" className="w-full justify-start text-white border border-transparent hover:border-primary hover:bg-primary/10 hover:text-white transition-all">
+                    <Calendar className="mr-2 h-4 w-4" />
+                    Calendário de Jogos
+                  </Button>
+                </Link>
+                <Link to={`/player/${user?.id}?tournament=all`}> {/* Link para o perfil público do jogador */}
+                  <Button variant="ghost" className="w-full justify-start text-white border border-transparent hover:border-primary hover:bg-primary/10 hover:text-white transition-all">
+                    <TrendingUp className="mr-2 h-4 w-4" />
+                    Meu Perfil Público
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
 

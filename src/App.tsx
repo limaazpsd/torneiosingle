@@ -17,6 +17,7 @@ import RegularizePayment from "./pages/RegularizePayment";
 import Demo from "./pages/Demo";
 import Profile from "./pages/Profile";
 import PlayerProfile from "./pages/PlayerProfile";
+import TeamCalendar from "./pages/TeamCalendar"; // Importando o novo componente
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -86,6 +87,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Profile />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/calendario" 
+              element={
+                <ProtectedRoute>
+                  <TeamCalendar />
                 </ProtectedRoute>
               } 
             />
