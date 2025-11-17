@@ -8,6 +8,7 @@ import { TeamOverview } from "@/components/teams/TeamOverview";
 import { TeamMembersList } from "@/components/teams/TeamMembersList";
 import { TeamInviteSection } from "@/components/teams/TeamInviteSection";
 import { TeamRegistrations } from "@/components/teams/TeamRegistrations";
+import { TeamLogoEditor } from "@/components/teams/TeamLogoEditor"; // Importação adicionada
 
 const TeamManagement = () => {
   const navigate = useNavigate();
@@ -91,6 +92,9 @@ const TeamManagement = () => {
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
+            {isCapitain && (
+              <TeamLogoEditor team={team} />
+            )}
             <TeamOverview 
               team={team} 
               membersCount={members?.length || 0}
