@@ -256,6 +256,10 @@ const TournamentManagement = () => {
     return null;
   }
 
+  const teamsCount = teams?.length || 0;
+  const approvedTeamsCount = teams?.filter(t => t.payment_status === 'approved').length || 0;
+  const totalRevenue = approvedTeamsCount * Number(tournament.entry_fee);
+
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
@@ -310,9 +314,13 @@ const TournamentManagement = () => {
                   <CardTitle className="text-sm font-medium text-muted-foreground">Equipes Inscritas</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold text-primary">
-                    {teams?.length || 0} / {tournament.max_participants}
-                  </div>
+                  {teamsLoading ? (
+                    <Skeleton className="h-8 w-1/2" />
+                  ) : (
+                    <div className="text-3xl font-bold text-primary">
+                      {teamsCount} / {tournament.max_participants}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
@@ -321,9 +329,13 @@ const TournamentManagement = () => {
                   <CardTitle className="text-sm font-medium text-muted-foreground">Receita Total</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold text-emerald-400">
-                    R$ {((teams?.filter(t => t.payment_status === 'approved').length || 0) * Number(tournament.entry_fee)).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                  </div>
+                  {teamsLoading ? (
+                    <Skeleton className="h-8 w-3/4" />
+                  ) : (
+                    <div className="text-3xl font-bold text-emerald-400">
+                      R$ {totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
@@ -483,14 +495,21 @@ const TournamentManagement = () => {
 
           {/* Approvals Tab */}
           <TabsContent value="approvals" className="space-y-6">
-            <TeamApprovalSection 
-              teams={teams || []}
-              tournamentEntryFee={tournament.entry_fee}
-              tournamentId={tournament.id}
-              onApprove={(teamId) => updateTeamPaymentMutation.mutate({ teamId, status: "approved" })}
-              onReject={(teamId) => updateTeamPaymentMutation.mutate({ teamId, status: "rejected" })}
-              isUpdating={updateTeamPaymentMutation.isPending}
-            />
+            {teamsLoading ? (
+              <div className="space-y-4">
+                <Skeleton className="h-20 w-full" />
+                <Skeleton className="h-20 w-full" />
+              </div>
+            ) : (
+              <TeamApprovalSection 
+                teams={teams || []}
+                tournamentEntryFee={tournament.entry_fee}
+                tournamentId={tournament.id}
+                onApprove={(teamId) => updateTeamPaymentMutation.mutate({ teamId, status: "approved" })}
+                onReject={(teamId) => updateTeamPaymentMutation.mutate({ teamId, status: "rejected" })}
+                isUpdating={updateTeamPaymentMutation.isPending}
+              />
+            )}
           </TabsContent>
           
           {/* Standings Tab */}

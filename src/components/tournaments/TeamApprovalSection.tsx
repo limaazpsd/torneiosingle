@@ -7,11 +7,12 @@ import type { Team } from "@/types/database";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton"; // Importando Skeleton
 
 interface TeamApprovalSectionProps {
-  teams: Team[];
-  tournamentEntryFee: number; // Adicionando a taxa de inscrição do torneio
-  tournamentId: string; // Adicionando o ID do torneio
+  teams: Team[] | undefined; // Permitindo undefined para indicar carregamento
+  tournamentEntryFee: number;
+  tournamentId: string;
   onApprove: (teamId: string) => void;
   onReject: (teamId: string) => void;
   isUpdating?: boolean;
@@ -21,9 +22,18 @@ export const TeamApprovalSection = ({ teams, tournamentEntryFee, tournamentId, o
   const queryClient = useQueryClient();
   const isPaidTournament = tournamentEntryFee > 0;
 
-  const pendingTeams = teams?.filter(t => t.payment_status === 'pending') || [];
-  const approvedTeams = teams?.filter(t => t.payment_status === 'approved') || [];
-  const rejectedTeams = teams?.filter(t => t.payment_status === 'rejected') || [];
+  if (!teams) {
+    return (
+      <div className="space-y-4">
+        <Skeleton className="h-20 w-full" />
+        <Skeleton className="h-20 w-full" />
+      </div>
+    );
+  }
+
+  const pendingTeams = teams.filter(t => t.payment_status === 'pending') || [];
+  const approvedTeams = teams.filter(t => t.payment_status === 'approved') || [];
+  const rejectedTeams = teams.filter(t => t.payment_status === 'rejected') || [];
 
   const deleteTeamMutation = useMutation({
     mutationFn: async (teamId: string) => {
@@ -123,7 +133,7 @@ export const TeamApprovalSection = ({ teams, tournamentEntryFee, tournamentId, o
               <Clock className="h-5 w-5 text-amber-400" />
               Solicitações Pendentes
             </CardTitle>
-            <CardDescription>Times aguardando aprovação de inscrição</CardDescription>
+            <CardDescription>Equipes aguardando aprovação de inscrição</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
@@ -314,7 +324,7 @@ export const TeamApprovalSection = ({ teams, tournamentEntryFee, tournamentId, o
         </Card>
       )}
 
-      {teams?.length === 0 && (
+      {teams.length === 0 && (
         <Card>
           <CardContent className="py-12 text-center">
             <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
