@@ -203,29 +203,42 @@ export const useCreateTeam = () => {
 
       // Upload logo if provided
       if (teamData.logo) {
-        const fileExt = teamData.logo.name.split('.').pop();
-        const fileName = `${user.id}/${Date.now()}.${fileExt}`;
-        
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('team-logos')
-          .upload(fileName, teamData.logo, {
-            cacheControl: '3600',
-            upsert: false
-          });
+        try {
+          const fileExt = teamData.logo.name.split('.').pop();
+          // Path: user_id/timestamp.ext
+          const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+          
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('team-logos') 
+            .upload(fileName, teamData.logo, {
+              cacheControl: '3600',
+              upsert: false
+            });
 
-        if (uploadError) {
-          // Adiciona tratamento específico para o erro de bucket
-          if (uploadError.message.includes("bucket not found")) {
-            throw new Error("Erro de configuração: O bucket 'team-logos' não foi encontrado no Supabase Storage. Tente novamente sem o logo ou configure o bucket.");
+          if (uploadError) {
+            console.error("Supabase Storage Upload Error:", uploadError);
+            if (uploadError.message.includes("bucket not found")) {
+              // Lança um erro específico para o frontend capturar
+              throw new Error("Erro de configuração: O bucket 'team-logos' não foi encontrado. Tente novamente sem o logo ou entre em contato com o suporte.");
+            }
+            throw uploadError;
           }
-          throw uploadError;
+
+          const { data: { publicUrl } } = supabase.storage
+            .from('team-logos')
+            .getPublicUrl(uploadData.path);
+
+          logo_url = publicUrl;
+        } catch (uploadError: any) {
+          // Se o upload falhar, loga o erro, mas permite a criação da equipe sem logo
+          console.warn("Falha ao fazer upload do logo. Criando equipe sem logo.", uploadError.message);
+          toast({
+            title: "Aviso: Falha no Upload do Logo",
+            description: uploadError.message || "A equipe será criada sem logo.",
+            variant: "destructive",
+          });
+          logo_url = undefined;
         }
-
-        const { data: { publicUrl } } = supabase.storage
-          .from('team-logos')
-          .getPublicUrl(uploadData.path);
-
-        logo_url = publicUrl;
       }
 
       // Create team via secure RPC (handles creator + captain membership)
