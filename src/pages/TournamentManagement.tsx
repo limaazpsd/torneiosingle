@@ -26,7 +26,7 @@ import { CreateGroupsButton } from "@/components/tournaments/CreateGroupsButton"
 import { RandomDrawButton } from "@/components/tournaments/RandomDrawButton";
 import { MatchSchedule } from "@/components/tournaments/MatchSchedule";
 import { ResetDrawsButton } from "@/components/tournaments/ResetDrawsButton";
-import { TournamentTeamsList } from "@/components/tournaments/TournamentTeamsList";
+import { TournamentEquipesList } from "@/components/tournaments/TournamentEquipesList";
 
 const TournamentManagement = () => {
   const { slug } = useParams();
@@ -290,7 +290,7 @@ const TournamentManagement = () => {
             </TabsTrigger>
             <TabsTrigger value="teams">
               <Users className="h-4 w-4 mr-2" />
-              Times
+              Equipes
             </TabsTrigger>
             <TabsTrigger value="standings">
               <Trophy className="h-4 w-4 mr-2" />
@@ -498,7 +498,7 @@ const TournamentManagement = () => {
           {/* Teams List Tab (New) */}
           <TabsContent value="teams" className="space-y-6">
             {tournament && teams && (
-              <TournamentTeamsList tournament={tournament} teams={teams} />
+              <TournamentEquipesList tournament={tournament} teams={teams} />
             )}
           </TabsContent>
 

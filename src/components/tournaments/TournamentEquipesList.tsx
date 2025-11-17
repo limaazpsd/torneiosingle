@@ -8,12 +8,12 @@ import { toast } from "sonner";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import type { Team, Tournament } from "@/types/database";
 
-interface TournamentTeamsListProps {
+interface TournamentEquipesListProps {
   tournament: Tournament;
   teams: Team[];
 }
 
-export const TournamentTeamsList = ({ tournament, teams }: TournamentTeamsListProps) => {
+export const TournamentEquipesList = ({ tournament, teams }: TournamentEquipesListProps) => {
   const queryClient = useQueryClient();
   const isPaidTournament = tournament.entry_fee > 0;
 
@@ -67,7 +67,7 @@ export const TournamentTeamsList = ({ tournament, teams }: TournamentTeamsListPr
   return (
     <Card className="border-primary/20">
       <CardHeader>
-        <CardTitle>Times Inscritos ({teams.length})</CardTitle>
+        <CardTitle>Equipes Inscritas ({teams.length})</CardTitle>
         <CardDescription>
           Gerencie todas as equipes que se inscreveram no seu torneio.
         </CardDescription>
@@ -76,15 +76,15 @@ export const TournamentTeamsList = ({ tournament, teams }: TournamentTeamsListPr
         {teams.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground">
             <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p>Nenhum time inscrito ainda.</p>
+            <p>Nenhuma equipe inscrita ainda.</p>
           </div>
         ) : (
           <div className="space-y-3">
             {teams.map((team) => {
               const canDelete = !isPaidTournament || (team.payment_status !== 'approved');
               const deleteReason = isPaidTournament && team.payment_status === 'approved'
-                ? "A exclusão não é permitida para times com pagamento aprovado."
-                : "Esta ação é irreversível e removerá o time do torneio.";
+                ? "A exclusão não é permitida para equipes com pagamento aprovado."
+                : "Esta ação é irreversível e removerá a equipe do torneio.";
 
               return (
                 <Card key={team.id} className="bg-card/30 border-border/50">
@@ -136,7 +136,7 @@ export const TournamentTeamsList = ({ tournament, teams }: TournamentTeamsListPr
                               {deleteReason}
                               {!canDelete && (
                                 <p className="mt-2 font-semibold text-red-500">
-                                  Para excluir este time, você deve primeiro reverter o status de pagamento.
+                                  Para excluir esta equipe, você deve primeiro reverter o status de pagamento.
                                 </p>
                               )}
                             </AlertDialogDescription>
