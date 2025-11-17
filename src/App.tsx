@@ -17,7 +17,7 @@ import RegularizePayment from "./pages/RegularizePayment";
 import Demo from "./pages/Demo";
 import Profile from "./pages/Profile";
 import PlayerProfile from "./pages/PlayerProfile";
-import TeamCalendar from "./pages/TeamCalendar"; // Importando o novo componente
+import TeamCalendar from "./pages/TeamCalendar";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -98,7 +98,7 @@ const App = () => (
                 </ProtectedRoute>
               } 
             />
-            <Route path="/player/:playerId" element={<PlayerProfile />} />
+            <Route path="/jogador/:username" element={<PlayerProfile />} /> {/* Rota atualizada */}
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

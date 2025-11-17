@@ -24,6 +24,26 @@ const Dashboard = () => {
     return labels[status] || status;
   };
 
+  // O username é armazenado no metadata do usuário ou no perfil. 
+  // Como o perfil é carregado na página Profile, vamos usar o username do perfil se estiver disponível.
+  // Por enquanto, vamos assumir que o username está disponível no perfil (que é o que o PlayerProfile busca).
+  // Para o link funcionar, precisamos do username. Se o usuário não tiver username, o link não funcionará.
+  // Vamos buscar o username do perfil do usuário logado.
+  
+  const { data: userProfile } = useQuery({
+    queryKey: ['user-profile-username', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const { data } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('user_id', user.id)
+        .single();
+      return data?.username;
+    },
+    enabled: !!user?.id,
+  });
+
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
@@ -219,24 +239,36 @@ const Dashboard = () => {
                     Criar Torneio
                   </Button>
                 </Link>
-                <Link to="/criar-time"> {/* Link corrigido */}
+                <Link to="/criar-time">
                   <Button variant="ghost" className="w-full justify-start text-white border border-transparent hover:border-primary hover:bg-primary/10 hover:text-white transition-all">
                     <Users className="mr-2 h-4 w-4" />
                     Criar Equipe
                   </Button>
                 </Link>
-                <Link to="/calendario"> {/* Novo link para o calendário */}
+                <Link to="/calendario">
                   <Button variant="ghost" className="w-full justify-start text-white border border-transparent hover:border-primary hover:bg-primary/10 hover:text-white transition-all">
                     <Calendar className="mr-2 h-4 w-4" />
                     Calendário de Jogos
                   </Button>
                 </Link>
-                <Link to={`/player/${user?.id}?tournament=all`}> {/* Link para o perfil público do jogador */}
-                  <Button variant="ghost" className="w-full justify-start text-white border border-transparent hover:border-primary hover:bg-primary/10 hover:text-white transition-all">
+                <Link 
+                  to={userProfile ? `/jogador/${userProfile}?tournament=all` : '/perfil'} 
+                  className="w-full"
+                >
+                  <Button 
+                    variant="ghost" 
+                    className="w-full justify-start text-white border border-transparent hover:border-primary hover:bg-primary/10 hover:text-white transition-all"
+                    disabled={!userProfile}
+                  >
                     <TrendingUp className="mr-2 h-4 w-4" />
                     Meu Perfil Público
                   </Button>
                 </Link>
+                {!userProfile && (
+                  <p className="text-xs text-muted-foreground text-center pt-1">
+                    Crie seu username no <Link to="/perfil" className="text-primary hover:underline">Meu Perfil</Link> para acessar o perfil público.
+                  </p>
+                )}
               </CardContent>
             </Card>
 

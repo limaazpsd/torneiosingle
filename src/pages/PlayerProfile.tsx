@@ -23,26 +23,34 @@ interface PlayerStats {
 }
 
 export default function PlayerProfile() {
-  const { playerId } = useParams();
+  const { username } = useParams(); // Agora usamos username
   const [searchParams] = useSearchParams();
   const tournamentId = searchParams.get('tournament');
   const navigate = useNavigate();
 
+  // 1. Fetch Profile to get user_id
   const { data: profile, isLoading: profileLoading } = useQuery({
-    queryKey: ['player-profile', playerId],
+    queryKey: ['player-profile-by-username', username],
     queryFn: async () => {
+      if (!username) return null;
+      
+      const cleanUsername = username.startsWith('@') ? username.substring(1) : username;
+
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('user_id', playerId)
+        .eq('username', cleanUsername)
         .single();
       
       if (error) throw error;
       return data;
     },
-    enabled: !!playerId,
+    enabled: !!username,
   });
 
+  const playerId = profile?.user_id;
+
+  // 2. Fetch Statistics using user_id
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ['player-statistics', playerId, tournamentId],
     queryFn: async () => {
@@ -108,12 +116,15 @@ export default function PlayerProfile() {
 
   if (!profile) {
     return (
-      <div className="container mx-auto py-8 px-4">
-        <Card>
-          <CardContent className="py-8 text-center">
-            <p className="text-muted-foreground">Jogador não encontrado</p>
-          </CardContent>
-        </Card>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <CircleAlert className="h-20 w-20 text-muted-foreground mx-auto mb-4" />
+          <h2 className="text-2xl font-bold mb-2">Perfil não encontrado</h2>
+          <p className="text-muted-foreground mb-4">O usuário @{username} não existe ou não tem um perfil público.</p>
+          <Button variant="hero" onClick={() => navigate('/painel')}>
+            Voltar ao Painel
+          </Button>
+        </div>
       </div>
     );
   }
@@ -159,7 +170,7 @@ export default function PlayerProfile() {
                 <div className="flex-1 text-center md:text-left space-y-2">
                   <h1 className="text-3xl font-bold">{profile.name}</h1>
                   {profile.username && (
-                    <p className="text-lg text-muted-foreground">{profile.username}</p>
+                    <p className="text-lg text-muted-foreground">@{profile.username}</p>
                   )}
                   {statsData.teams && (
                     <div className="flex items-center gap-2 justify-center md:justify-start">
