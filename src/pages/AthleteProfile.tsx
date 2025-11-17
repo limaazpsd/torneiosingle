@@ -34,17 +34,23 @@ export default function AthleteProfile() {
     queryFn: async () => {
       if (!username) return null;
       
-      // Garante que a busca é feita apenas com o username limpo (sem @) e em minúsculas
+      // O username da URL já vem limpo (sem @) graças ao Dashboard.tsx, mas vamos garantir.
       const cleanUsername = (username.startsWith('@') ? username.substring(1) : username).toLowerCase();
+      const usernameWithAt = `@${cleanUsername}`;
 
+      // Tenta buscar o username limpo OU o username com @ (para compatibilidade com dados antigos)
       // Usamos 'ilike' para busca case-insensitive
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .ilike('username', cleanUsername)
+        .or(`username.ilike.${cleanUsername},username.ilike.${usernameWithAt}`)
         .single();
       
-      if (error) throw error;
+      if (error && error.code !== 'PGRST116') { // PGRST116 = No rows found (expected single row)
+        console.error("Erro ao buscar perfil:", error);
+        throw error;
+      }
+      
       return data;
     },
     enabled: !!username,
