@@ -25,6 +25,7 @@ import { PopulateDrawsButton } from "@/components/tournaments/PopulateDrawsButto
 import { CreateGroupsButton } from "@/components/tournaments/CreateGroupsButton";
 import { RandomDrawButton } from "@/components/tournaments/RandomDrawButton";
 import { MatchSchedule } from "@/components/tournaments/MatchSchedule";
+import { ResetDrawsButton } from "@/components/tournaments/ResetDrawsButton";
 
 const TournamentManagement = () => {
   const { slug } = useParams();
@@ -358,6 +359,7 @@ const TournamentManagement = () => {
                   tournamentId={tournament.id} 
                   location={tournament.location} 
                 />
+                <ResetDrawsButton tournamentId={tournament.id} />
               </CardContent>
             </Card>
 
