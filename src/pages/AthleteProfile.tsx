@@ -22,8 +22,8 @@ interface PlayerStats {
   };
 }
 
-export default function PlayerProfile() {
-  const { username } = useParams(); // Agora usamos username
+export default function AthleteProfile() {
+  const { username } = useParams();
   const [searchParams] = useSearchParams();
   const tournamentId = searchParams.get('tournament');
   const navigate = useNavigate();
@@ -34,6 +34,7 @@ export default function PlayerProfile() {
     queryFn: async () => {
       if (!username) return null;
       
+      // Garante que a busca é feita apenas com o username limpo (sem @)
       const cleanUsername = username.startsWith('@') ? username.substring(1) : username;
 
       const { data, error } = await supabase
@@ -120,7 +121,7 @@ export default function PlayerProfile() {
         <div className="text-center">
           <CircleAlert className="h-20 w-20 text-muted-foreground mx-auto mb-4" />
           <h2 className="text-2xl font-bold mb-2">Perfil não encontrado</h2>
-          <p className="text-muted-foreground mb-4">O usuário @{username} não existe ou não tem um perfil público.</p>
+          <p className="text-muted-foreground mb-4">O usuário {username} não existe ou não tem um perfil público.</p>
           <Button variant="hero" onClick={() => navigate('/painel')}>
             Voltar ao Painel
           </Button>

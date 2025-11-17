@@ -6,8 +6,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMyTournaments, useMyTournamentStats } from "@/hooks/useTournaments";
 import MyTeamsSection from "@/components/teams/MyTeamsSection";
-import { useQuery } from "@tanstack/react-query"; // Importação adicionada
-import { supabase } from "@/integrations/supabase/client"; // Importação adicionada
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -28,7 +28,7 @@ const Dashboard = () => {
 
   // O username é armazenado no metadata do usuário ou no perfil. 
   // Como o perfil é carregado na página Profile, vamos usar o username do perfil se estiver disponível.
-  // Por enquanto, vamos assumir que o username está disponível no perfil (que é o que o PlayerProfile busca).
+  // Por enquanto, vamos assumir que o username está disponível no perfil (que é o que o AthleteProfile busca).
   // Para o link funcionar, precisamos do username. Se o usuário não tiver username, o link não funcionará.
   // Vamos buscar o username do perfil do usuário logado.
   
@@ -254,7 +254,7 @@ const Dashboard = () => {
                   </Button>
                 </Link>
                 <Link 
-                  to={userProfile ? `/jogador/${userProfile}?tournament=all` : '/perfil'} 
+                  to={userProfile ? `/atleta/${userProfile}?tournament=all` : '/perfil'} 
                   className="w-full"
                 >
                   <Button 

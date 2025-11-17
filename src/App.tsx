@@ -16,7 +16,7 @@ import TeamManagement from "./pages/TeamManagement";
 import RegularizePayment from "./pages/RegularizePayment";
 import Demo from "./pages/Demo";
 import Profile from "./pages/Profile";
-import PlayerProfile from "./pages/PlayerProfile";
+import AthleteProfile from "./pages/AthleteProfile";
 import TeamCalendar from "./pages/TeamCalendar";
 import NotFound from "./pages/NotFound";
 
@@ -98,7 +98,7 @@ const App = () => (
                 </ProtectedRoute>
               } 
             />
-            <Route path="/jogador/:username" element={<PlayerProfile />} /> {/* Rota atualizada */}
+            <Route path="/atleta/:username" element={<AthleteProfile />} /> {/* Rota atualizada para /atleta */}
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
