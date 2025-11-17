@@ -118,20 +118,41 @@ const CreateTournament = () => {
   const handleLogoUpload = async () => {
     if (!logoFile || !user) return null;
     
-    const fileExt = logoFile.name.split('.').pop();
-    const fileName = `${user.id}-${Date.now()}.${fileExt}`;
-    
-    const { error: uploadError, data } = await supabase.storage
-      .from('team-logos')
-      .upload(fileName, logoFile);
-    
-    if (uploadError) throw uploadError;
-    
-    const { data: { publicUrl } } = supabase.storage
-      .from('team-logos')
-      .getPublicUrl(fileName);
-    
-    return publicUrl;
+    try {
+      const fileExt = logoFile.name.split('.').pop();
+      const fileName = `${user.id}/tournament-${Date.now()}.${fileExt}`;
+      
+      const { error: uploadError, data } = await supabase.storage
+        .from('team-logos') // Usando o mesmo bucket para logos de torneio
+        .upload(fileName, logoFile);
+      
+      if (uploadError) {
+        console.error("Supabase Storage Upload Error:", uploadError);
+        if (uploadError.message.includes("bucket not found")) {
+          toast({
+            title: "Aviso: Falha no Upload do Logo",
+            description: "O bucket 'team-logos' não foi encontrado. O torneio será criado sem logo.",
+            variant: "destructive",
+          });
+          return null;
+        }
+        throw uploadError;
+      }
+      
+      const { data: { publicUrl } } = supabase.storage
+        .from('team-logos')
+        .getPublicUrl(fileName);
+      
+      return publicUrl;
+    } catch (error: any) {
+      console.error("Error during logo upload:", error);
+      toast({
+        title: "Erro ao fazer upload do logo",
+        description: error.message || "O torneio será criado sem logo.",
+        variant: "destructive",
+      });
+      return null;
+    }
   };
 
   const onSubmit = async (values: TournamentFormValues) => {
@@ -172,6 +193,7 @@ const CreateTournament = () => {
           logo_url: logoUrl,
           creator_id: user.id,
           status: 'registration_open',
+          slug: values.slug, // Incluindo o slug gerado
         }])
         .select()
         .single();
@@ -180,29 +202,18 @@ const CreateTournament = () => {
 
       // Se formato tem grupos, criar grupos automaticamente
       if (values.format === 'groups-knockout' || values.format === 'groups-only') {
-        const calculateNumGroups = (maxParticipants: number): number => {
-          if (maxParticipants <= 8) return 2;
-          if (maxParticipants <= 16) return 4;
-          if (maxParticipants <= 24) return 4;
-          if (maxParticipants <= 32) return 8;
-          return 4;
-        };
-
-        const numGroups = calculateNumGroups(values.max_participants);
-        const groupLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
-        
-        const groupsToInsert = Array.from({ length: numGroups }, (_, i) => ({
-          tournament_id: data.id,
-          name: `Grupo ${groupLetters[i]}`,
-          display_order: i + 1
-        }));
-        
-        const { error: groupsError } = await supabase
-          .from('groups')
-          .insert(groupsToInsert);
+        // Chamada para Edge Function para criar grupos
+        const { error: groupsError } = await supabase.functions.invoke('create-missing-groups', {
+          body: { tournament_id: data.id }
+        });
         
         if (groupsError) {
-          console.error('Error creating groups:', groupsError);
+          console.error('Error calling create-missing-groups function:', groupsError);
+          toast({
+            title: "Aviso",
+            description: "Torneio criado, mas houve um erro ao criar os grupos automaticamente.",
+            variant: "destructive",
+          });
         }
       }
 
@@ -211,7 +222,7 @@ const CreateTournament = () => {
         description: "Torneio criado com sucesso",
       });
 
-      navigate(`/torneio/${data?.slug || ''}`);
+      navigate(`/editar-torneio/${data?.slug || ''}`);
     } catch (error: any) {
       toast({
         title: "Erro",
