@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Trophy, Target, AlertCircle, CircleAlert, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { AthleteSearch } from "@/components/athletes/AthleteSearch"; // Importando o novo componente
 
 interface PlayerStats {
   goals: number;
@@ -164,6 +165,9 @@ export default function AthleteProfile() {
 
       <div className="container mx-auto py-8 px-4">
         <div className="max-w-4xl mx-auto space-y-6">
+          
+          <AthleteSearch /> {/* Novo componente de busca */}
+
           {/* Profile Header */}
           <Card>
             <CardContent className="pt-6">
