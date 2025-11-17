@@ -49,7 +49,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
       if (error) {
-        toast.error("Email ou senha incorretos");
+        console.error("Supabase Sign In Error:", error);
+        
+        let errorMessage = "Email ou senha incorretos";
+        
+        if (error.message.includes("Email not confirmed")) {
+          errorMessage = "Seu email ainda não foi confirmado. Verifique sua caixa de entrada.";
+        } else if (error.message.includes("Invalid login credentials")) {
+          errorMessage = "Email ou senha incorretos. Tente novamente.";
+        }
+        
+        toast.error(errorMessage);
         return { error };
       }
 
@@ -57,7 +67,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       navigate("/painel");
       return { error: null };
     } catch (error) {
-      toast.error("Erro ao fazer login");
+      console.error("General Sign In Error:", error);
+      toast.error("Erro inesperado ao tentar fazer login.");
       return { error };
     }
   };
