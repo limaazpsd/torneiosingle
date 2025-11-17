@@ -14,12 +14,20 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useUserTeamsForTournament } from "@/hooks/useTournamentRegistration";
-import { TeamSelector } from "@/components/tournaments/TeamSelector";
 import { IndependentTeam } from "@/types/database";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { TournamentStandings } from "@/components/tournaments/TournamentStandings";
 import { MatchesList } from "@/components/tournaments/MatchesList";
 import { TournamentScorers } from "@/components/tournaments/TournamentScorers";
+
+// Lista de emojis padrão para times sem logo/emoji
+const DEFAULT_EMOJIS = ["⚽", "🏀", "🏈", "⚾", "🎾", "🏐", "🏉", "🎱", "🏓", "🏸"];
+
+// Função para obter um emoji padrão baseado no ID do time (para consistência)
+const getDefaultEmoji = (teamId: string) => {
+  const hash = teamId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  return DEFAULT_EMOJIS[hash % DEFAULT_EMOJIS.length];
+};
 
 const PublicTournament = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -111,6 +119,9 @@ const PublicTournament = () => {
       // Determine payment status based on entry fee
       const isFree = !tournament?.entry_fee || tournament.entry_fee === 0;
       const paymentStatus = isFree ? 'approved' : 'pending';
+      
+      // Determine emoji fallback
+      const teamEmoji = selectedTeam.emoji || (selectedTeam.logo_url ? null : getDefaultEmoji(selectedTeam.id));
 
       // Insert team into tournament
       // Usando (supabase as any) para forçar a inserção e ignorar o cache de tipagem do Supabase
@@ -120,7 +131,7 @@ const PublicTournament = () => {
           tournament_id: tournament?.id,
           name: selectedTeam.name,
           captain_id: user.id,
-          emoji: selectedTeam.emoji,
+          emoji: teamEmoji, // Usando o emoji de fallback se necessário
           logo_url: selectedTeam.logo_url,
           independent_team_id: selectedTeam.id,
           players_count: playersCount,
