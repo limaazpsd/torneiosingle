@@ -26,6 +26,7 @@ import { CreateGroupsButton } from "@/components/tournaments/CreateGroupsButton"
 import { RandomDrawButton } from "@/components/tournaments/RandomDrawButton";
 import { MatchSchedule } from "@/components/tournaments/MatchSchedule";
 import { ResetDrawsButton } from "@/components/tournaments/ResetDrawsButton";
+import { TournamentTeamsList } from "@/components/tournaments/TournamentTeamsList";
 
 const TournamentManagement = () => {
   const { slug } = useParams();
@@ -278,7 +279,7 @@ const TournamentManagement = () => {
 
       <div className="container mx-auto px-6 md:px-8 lg:px-12 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 max-w-3xl">
+          <TabsList className="grid w-full grid-cols-6 max-w-4xl">
             <TabsTrigger value="overview">
               <Info className="h-4 w-4 mr-2" />
               Visão Geral
@@ -286,6 +287,10 @@ const TournamentManagement = () => {
             <TabsTrigger value="approvals">
               <CheckCircle className="h-4 w-4 mr-2" />
               Aprovações
+            </TabsTrigger>
+            <TabsTrigger value="teams">
+              <Users className="h-4 w-4 mr-2" />
+              Times
             </TabsTrigger>
             <TabsTrigger value="standings">
               <Trophy className="h-4 w-4 mr-2" />
@@ -480,7 +485,7 @@ const TournamentManagement = () => {
             </Card>
           </TabsContent>
 
-          {/* Teams Tab */}
+          {/* Approvals Tab */}
           <TabsContent value="approvals" className="space-y-6">
             <TeamApprovalSection 
               teams={teams || []}
@@ -488,6 +493,13 @@ const TournamentManagement = () => {
               onReject={(teamId) => updateTeamPaymentMutation.mutate({ teamId, status: "rejected" })}
               isUpdating={updateTeamPaymentMutation.isPending}
             />
+          </TabsContent>
+          
+          {/* Teams List Tab (New) */}
+          <TabsContent value="teams" className="space-y-6">
+            {tournament && teams && (
+              <TournamentTeamsList tournament={tournament} teams={teams} />
+            )}
           </TabsContent>
 
           {/* Standings Tab */}
