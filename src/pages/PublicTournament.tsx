@@ -14,6 +14,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useUserTeamsForTournament } from "@/hooks/useTournamentRegistration";
+import { TeamSelector } from "@/components/tournaments/TeamSelector";
 import { IndependentTeam } from "@/types/database";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { TournamentStandings } from "@/components/tournaments/TournamentStandings";
