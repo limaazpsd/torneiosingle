@@ -29,47 +29,20 @@ const CreateIndependentTeam = () => {
   });
 
   const [sportCategory, setSportCategory] = useState<string>("");
-  const [logoFile, setLogoFile] = useState<File | null>(null);
-  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  // Removendo logoFile e logoPreview para evitar o upload
+  // const [logoFile, setLogoFile] = useState<File | null>(null);
+  // const [logoPreview, setLogoPreview] = useState<string | null>(null);
 
+  // Funções de logo removidas/comentadas
+  /*
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      toast({
-        title: "Arquivo inválido",
-        description: "Por favor, selecione uma imagem (PNG, JPG, WEBP)",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Validate file size (2MB)
-    if (file.size > 2 * 1024 * 1024) {
-      toast({
-        title: "Arquivo muito grande",
-        description: "A imagem deve ter no máximo 2MB",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setLogoFile(file);
-    
-    // Create preview
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setLogoPreview(reader.result as string);
-    };
-    reader.readAsDataURL(file);
+    // ... (lógica de upload comentada)
   };
 
   const handleRemoveLogo = () => {
-    setLogoFile(null);
-    setLogoPreview(null);
+    // ... (lógica de remoção comentada)
   };
+  */
 
   const handleCategoryChange = (category: string) => {
     setSportCategory(category);
@@ -97,8 +70,9 @@ const CreateIndependentTeam = () => {
       return;
     }
 
+    // Passando logo: undefined para garantir que o hook não tente fazer upload
     createTeam.mutate(
-      { ...formData, logo: logoFile || undefined },
+      { ...formData, logo: undefined },
       {
         onSuccess: () => {
           navigate("/painel");
@@ -153,7 +127,8 @@ const CreateIndependentTeam = () => {
                 />
               </div>
 
-              {/* Logo Upload */}
+              {/* Logo Upload (REMOVIDO TEMPORARIAMENTE DEVIDO AO ERRO DE BUCKET) */}
+              {/*
               <div className="space-y-2">
                 <Label>Logo da Equipe</Label>
                 <div className="flex flex-col gap-3">
@@ -195,6 +170,7 @@ const CreateIndependentTeam = () => {
                   </p>
                 </div>
               </div>
+              */}
 
               {/* Sport Category Selection */}
               <div className="space-y-2">
