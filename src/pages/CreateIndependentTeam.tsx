@@ -6,21 +6,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ArrowLeft, Users, Upload, X } from "lucide-react";
 import { useCreateTeam } from "@/hooks/useIndependentTeams";
 import { toast } from "@/hooks/use-toast";
 
-const SPORTS = [
-  "Futebol",
-  "Basquete",
-  "Vôlei",
-  "Futsal",
-  "Beach Tennis",
-  "Tênis",
-  "Handebol",
-  "E-sports",
-  "Outro",
-];
+const SPORT_CATEGORIES: Record<string, string[]> = {
+  "Futebol": ["Futsal", "Fut7", "Futebol"],
+  "Vôlei": ["Vôlei de Quadra", "Vôlei de Areia", "FutVôlei"],
+  "Luta": ["Karatê", "Taekwondo", "Kickboxing", "Boxe", "MMA", "Judô", "Hapkido", "Muay Thai", "Jiu Jitsu"],
+};
 
 const CreateIndependentTeam = () => {
   const navigate = useNavigate();
@@ -28,11 +23,12 @@ const CreateIndependentTeam = () => {
 
   const [formData, setFormData] = useState({
     name: "",
-    sport: "Futebol",
+    sport: "", // Agora é a subcategoria
     players_count: 5,
     description: "",
   });
 
+  const [sportCategory, setSportCategory] = useState<string>("");
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
 
@@ -75,6 +71,11 @@ const CreateIndependentTeam = () => {
     setLogoPreview(null);
   };
 
+  const handleCategoryChange = (category: string) => {
+    setSportCategory(category);
+    setFormData(prev => ({ ...prev, sport: "" })); // Reset subcategory when category changes
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -82,6 +83,15 @@ const CreateIndependentTeam = () => {
       toast({
         title: "Nome obrigatório",
         description: "Por favor, digite o nome da equipe",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!formData.sport) {
+      toast({
+        title: "Esporte obrigatório",
+        description: "Por favor, selecione a modalidade da equipe",
         variant: "destructive",
       });
       return;
@@ -186,27 +196,55 @@ const CreateIndependentTeam = () => {
                 </div>
               </div>
 
-              {/* Sport */}
+              {/* Sport Category Selection */}
               <div className="space-y-2">
-                <Label htmlFor="sport">Esporte *</Label>
-                <Select
-                  value={formData.sport}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, sport: value })
-                  }
+                <Label>Modalidade Principal *</Label>
+                <RadioGroup 
+                  value={sportCategory} 
+                  onValueChange={handleCategoryChange} 
+                  className="grid grid-cols-3 gap-4"
                 >
-                  <SelectTrigger id="sport">
-                    <SelectValue placeholder="Selecione o esporte" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {SPORTS.map((sport) => (
-                      <SelectItem key={sport} value={sport}>
-                        {sport}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  {Object.keys(SPORT_CATEGORIES).map((category) => (
+                    <div key={category} className="relative">
+                      <RadioGroupItem
+                        value={category}
+                        id={`category-${category}`}
+                        className="peer sr-only"
+                      />
+                      <Label
+                        htmlFor={`category-${category}`}
+                        className="flex items-center justify-center rounded-lg border-2 border-border bg-card/50 px-4 py-3 cursor-pointer transition-all hover:bg-accent/50 peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/10"
+                      >
+                        <span className="text-sm font-medium">{category}</span>
+                      </Label>
+                    </div>
+                  ))}
+                </RadioGroup>
               </div>
+
+              {/* Sport Subcategory Selection */}
+              {sportCategory && (
+                <div className="space-y-2">
+                  <Label htmlFor="sport">Especificação da Modalidade *</Label>
+                  <Select
+                    value={formData.sport}
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, sport: value })
+                    }
+                  >
+                    <SelectTrigger id="sport">
+                      <SelectValue placeholder="Selecione a modalidade específica" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {SPORT_CATEGORIES[sportCategory].map((subcategory) => (
+                        <SelectItem key={subcategory} value={subcategory}>
+                          {subcategory}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
 
               {/* Players Count */}
               <div className="space-y-2">
@@ -256,7 +294,7 @@ const CreateIndependentTeam = () => {
                 <Button
                   type="submit"
                   variant="hero"
-                  disabled={createTeam.isPending || !formData.name.trim()}
+                  disabled={createTeam.isPending || !formData.name.trim() || !formData.sport}
                   className="flex-1"
                 >
                   {createTeam.isPending ? "Criando..." : "Criar Equipe"}
