@@ -242,6 +242,8 @@ export const useCreateTeam = () => {
       }
 
       // Create team via secure RPC (handles creator + captain membership)
+      // Argument order MUST match the function definition: 
+      // _name, _sport, _players_count, _description, _emoji, _logo_url
       const { data: teamId, error: rpcError } = await supabase.rpc('create_independent_team', {
         _name: teamData.name,
         _sport: teamData.sport,
