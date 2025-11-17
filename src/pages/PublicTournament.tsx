@@ -113,7 +113,8 @@ const PublicTournament = () => {
       const paymentStatus = isFree ? 'approved' : 'pending';
 
       // Insert team into tournament
-      const { data: newTeam, error: teamError } = await supabase
+      // Usando (supabase as any) para forçar a inserção e ignorar o cache de tipagem do Supabase
+      const { data: newTeam, error: teamError } = await (supabase as any)
         .from('teams')
         .insert([{
           tournament_id: tournament?.id,
