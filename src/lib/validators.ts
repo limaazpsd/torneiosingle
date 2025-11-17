@@ -98,9 +98,11 @@ export const formatRG = (rg: string): string => {
 };
 
 /**
- * Formata username para sempre incluir @
+ * Formata username para retornar o valor limpo (sem @) e em minúsculas.
+ * Deve ser usado para armazenar no banco de dados e para buscar.
  */
 export const formatUsername = (username: string): string => {
   if (!username) return '';
-  return username.startsWith('@') ? username.toLowerCase() : `@${username.toLowerCase()}`;
+  const cleanUsername = username.startsWith('@') ? username.substring(1) : username;
+  return cleanUsername.toLowerCase();
 };
