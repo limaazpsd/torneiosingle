@@ -2,7 +2,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Users, Trophy, TrendingUp, Settings } from "lucide-react";
+import { ArrowLeft, Users, Trophy, TrendingUp, UserPlus } from "lucide-react";
 import { useMyTeams, useTeamMembers, useTeamInvitations } from "@/hooks/useIndependentTeams";
 import { TeamOverview } from "@/components/teams/TeamOverview";
 import { TeamMembersList } from "@/components/teams/TeamMembersList";
@@ -82,10 +82,10 @@ const TeamManagement = () => {
               <span className="sm:hidden">Stats</span>
             </TabsTrigger>
             {isCapitain && (
-              <TabsTrigger value="management" className="flex items-center gap-2">
-                <Settings className="h-4 w-4" />
-                <span className="hidden sm:inline">Gestão</span>
-                <span className="sm:hidden">Gestão</span>
+              <TabsTrigger value="invite" className="flex items-center gap-2">
+                <UserPlus className="h-4 w-4" />
+                <span className="hidden sm:inline">Convidar Atletas</span>
+                <span className="sm:hidden">Convites</span>
               </TabsTrigger>
             )}
           </TabsList>
@@ -118,7 +118,7 @@ const TeamManagement = () => {
           </TabsContent>
 
           {isCapitain && (
-            <TabsContent value="management" className="space-y-6">
+            <TabsContent value="invite" className="space-y-6">
               <TeamInviteSection 
                 teamId={teamId!}
                 invitations={invitations}
@@ -126,10 +126,10 @@ const TeamManagement = () => {
               
               <Card className="bg-card/50 border-primary/20">
                 <CardContent className="py-12 text-center">
-                  <Settings className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">Configurações Avançadas</h3>
+                  <UserPlus className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">Gerenciamento de Membros</h3>
                   <p className="text-muted-foreground">
-                    Opções de edição de time, remoção de membros e outras configurações em breve
+                    Use a seção acima para convidar novos atletas. Opções de edição de time e remoção de membros em breve.
                   </p>
                 </CardContent>
               </Card>
