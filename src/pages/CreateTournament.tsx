@@ -118,41 +118,24 @@ const CreateTournament = () => {
   const handleLogoUpload = async () => {
     if (!logoFile || !user) return null;
     
-    try {
-      const fileExt = logoFile.name.split('.').pop();
-      const fileName = `${user.id}/tournament-${Date.now()}.${fileExt}`;
-      
-      const { error: uploadError, data } = await supabase.storage
-        .from('team-logos') // Usando o mesmo bucket para logos de torneio
-        .upload(fileName, logoFile);
-      
-      if (uploadError) {
-        console.error("Supabase Storage Upload Error:", uploadError);
-        if (uploadError.message.includes("bucket not found")) {
-          toast({
-            title: "Aviso: Falha no Upload do Logo",
-            description: "O bucket 'team-logos' não foi encontrado. O torneio será criado sem logo.",
-            variant: "destructive",
-          });
-          return null;
-        }
-        throw uploadError;
-      }
-      
-      const { data: { publicUrl } } = supabase.storage
-        .from('team-logos')
-        .getPublicUrl(fileName);
-      
-      return publicUrl;
-    } catch (error: any) {
-      console.error("Error during logo upload:", error);
-      toast({
-        title: "Erro ao fazer upload do logo",
-        description: error.message || "O torneio será criado sem logo.",
-        variant: "destructive",
-      });
-      return null;
+    const fileExt = logoFile.name.split('.').pop();
+    const fileName = `${user.id}/tournament-${Date.now()}.${fileExt}`;
+    
+    const { error: uploadError, data } = await supabase.storage
+      .from('team-logos') // Usando o mesmo bucket para logos de torneio
+      .upload(fileName, logoFile);
+    
+    if (uploadError) {
+      console.error("Supabase Storage Upload Error:", uploadError);
+      // Se houver erro, lançamos para que o toast de erro seja exibido
+      throw new Error(uploadError.message || "Falha ao fazer upload do logo. Verifique as permissões do bucket 'team-logos'.");
     }
+    
+    const { data: { publicUrl } } = supabase.storage
+      .from('team-logos')
+      .getPublicUrl(fileName);
+    
+    return publicUrl;
   };
 
   const onSubmit = async (values: TournamentFormValues) => {
@@ -170,6 +153,7 @@ const CreateTournament = () => {
     try {
       let logoUrl = null;
       if (logoFile) {
+        // Se o upload falhar, o erro será lançado aqui e o bloco catch será executado
         logoUrl = await handleLogoUpload();
       }
 

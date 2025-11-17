@@ -217,11 +217,8 @@ export const useCreateTeam = () => {
 
           if (uploadError) {
             console.error("Supabase Storage Upload Error:", uploadError);
-            if (uploadError.message.includes("bucket not found")) {
-              // Lança um erro específico para o frontend capturar
-              throw new Error("Erro de configuração: O bucket 'team-logos' não foi encontrado. Tente novamente sem o logo ou entre em contato com o suporte.");
-            }
-            throw uploadError;
+            // Lançamos o erro para que o bloco catch do mutation o capture
+            throw new Error(uploadError.message || "Falha ao fazer upload do logo. Verifique as permissões do bucket 'team-logos'.");
           }
 
           const { data: { publicUrl } } = supabase.storage
@@ -230,14 +227,8 @@ export const useCreateTeam = () => {
 
           logo_url = publicUrl;
         } catch (uploadError: any) {
-          // Se o upload falhar, loga o erro, mas permite a criação da equipe sem logo
-          console.warn("Falha ao fazer upload do logo. Criando equipe sem logo.", uploadError.message);
-          toast({
-            title: "Aviso: Falha no Upload do Logo",
-            description: uploadError.message || "A equipe será criada sem logo.",
-            variant: "destructive",
-          });
-          logo_url = undefined;
+          // Se o upload falhar, lançamos o erro para o onError do mutation
+          throw uploadError;
         }
       }
 
