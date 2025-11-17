@@ -213,7 +213,13 @@ export const useCreateTeam = () => {
             upsert: false
           });
 
-        if (uploadError) throw uploadError;
+        if (uploadError) {
+          // Adiciona tratamento específico para o erro de bucket
+          if (uploadError.message.includes("bucket not found")) {
+            throw new Error("Erro de configuração: O bucket 'team-logos' não foi encontrado no Supabase Storage. Tente novamente sem o logo ou configure o bucket.");
+          }
+          throw uploadError;
+        }
 
         const { data: { publicUrl } } = supabase.storage
           .from('team-logos')
