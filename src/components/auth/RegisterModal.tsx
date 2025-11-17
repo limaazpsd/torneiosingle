@@ -131,8 +131,8 @@ export function RegisterModal({ open, onOpenChange, onSwitchToLogin }: RegisterM
     setIsLoading(true);
     
     try {
-      // Criar conta com metadata
-      const { data: authData, error: authError } = await supabase.auth.signUp({
+      // Criar conta com metadata - o trigger do Supabase vai criar o perfil automaticamente
+      const { error: authError } = await supabase.auth.signUp({
         email: values.email,
         password: values.password,
         options: {
@@ -148,21 +148,7 @@ export function RegisterModal({ open, onOpenChange, onSwitchToLogin }: RegisterM
 
       if (authError) throw authError;
 
-      // Atualizar perfil com os dados adicionais
-      if (authData.user) {
-        const { error: profileError } = await (supabase as any)
-          .from("profiles")
-          .update({
-            username: formatUsername(values.username),
-            document_type: values.documentType,
-            document_number: values.documentNumber.replace(/\D/g, ''),
-          })
-          .eq("user_id", authData.user.id);
-
-        if (profileError) throw profileError;
-      }
-
-      toast.success("Conta criada com sucesso!");
+      toast.success("Conta criada com sucesso! Verifique seu email para confirmar.");
       onOpenChange(false);
       form.reset();
     } catch (error: any) {
