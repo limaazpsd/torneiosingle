@@ -34,13 +34,14 @@ export default function AthleteProfile() {
     queryFn: async () => {
       if (!username) return null;
       
-      // Garante que a busca é feita apenas com o username limpo (sem @)
-      const cleanUsername = username.startsWith('@') ? username.substring(1) : username;
+      // Garante que a busca é feita apenas com o username limpo (sem @) e em minúsculas
+      const cleanUsername = (username.startsWith('@') ? username.substring(1) : username).toLowerCase();
 
+      // Usamos 'ilike' para busca case-insensitive
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('username', cleanUsername)
+        .ilike('username', cleanUsername)
         .single();
       
       if (error) throw error;
