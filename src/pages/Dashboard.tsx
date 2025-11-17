@@ -6,6 +6,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMyTournaments, useMyTournamentStats } from "@/hooks/useTournaments";
 import MyTeamsSection from "@/components/teams/MyTeamsSection";
+import { useQuery } from "@tanstack/react-query"; // Importação adicionada
+import { supabase } from "@/integrations/supabase/client"; // Importação adicionada
 
 const Dashboard = () => {
   const navigate = useNavigate();
