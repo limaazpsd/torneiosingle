@@ -8,6 +8,7 @@ import { useMyTournaments, useMyTournamentStats } from "@/hooks/useTournaments";
 import MyTeamsSection from "@/components/teams/MyTeamsSection";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { removeAtSign } from "@/lib/validators"; // Importação adicionada
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -45,6 +46,9 @@ const Dashboard = () => {
     },
     enabled: !!user?.id,
   });
+
+  // Limpa o @ do username para usar na URL
+  const cleanUsername = userProfile ? removeAtSign(userProfile) : null;
 
   return (
     <div className="min-h-screen bg-background">
@@ -254,19 +258,19 @@ const Dashboard = () => {
                   </Button>
                 </Link>
                 <Link 
-                  to={userProfile ? `/atleta/${userProfile}?tournament=all` : '/perfil'} 
+                  to={cleanUsername ? `/atleta/${cleanUsername}?tournament=all` : '/perfil'} 
                   className="w-full"
                 >
                   <Button 
                     variant="ghost" 
                     className="w-full justify-start text-white border border-transparent hover:border-primary hover:bg-primary/10 hover:text-white transition-all"
-                    disabled={!userProfile}
+                    disabled={!cleanUsername}
                   >
                     <TrendingUp className="mr-2 h-4 w-4" />
                     Meu Perfil Público
                   </Button>
                 </Link>
-                {!userProfile && (
+                {!cleanUsername && (
                   <p className="text-xs text-muted-foreground text-center pt-1">
                     Crie seu username no <Link to="/perfil" className="text-primary hover:underline">Meu Perfil</Link> para acessar o perfil público.
                   </p>

@@ -98,11 +98,19 @@ export const formatRG = (rg: string): string => {
 };
 
 /**
+ * Remove o caractere '@' do início de um username, se presente.
+ */
+export const removeAtSign = (username: string): string => {
+  if (!username) return '';
+  return username.startsWith('@') ? username.substring(1) : username;
+};
+
+/**
  * Formata username para retornar o valor limpo (sem @) e em minúsculas.
  * Deve ser usado para armazenar no banco de dados e para buscar.
  */
 export const formatUsername = (username: string): string => {
   if (!username) return '';
-  const cleanUsername = username.startsWith('@') ? username.substring(1) : username;
+  const cleanUsername = removeAtSign(username);
   return cleanUsername.toLowerCase();
 };
